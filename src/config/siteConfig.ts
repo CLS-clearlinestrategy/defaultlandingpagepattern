@@ -135,9 +135,9 @@ export const siteConfig: SiteConfig = {
     ctaSecondary: "Saiba mais",
     ctaSecondaryHref: "#about",
     parallaxLayers: [
-      { speed: 0.05, content: "◆", className: "text-primary/10 text-[120px] top-[15%] left-[10%]" },
-      { speed: 0.12, content: "○", className: "text-primary/8 text-[80px] top-[60%] right-[15%]" },
-      { speed: 0.08, content: "△", className: "text-primary/6 text-[100px] bottom-[20%] left-[70%]" },
+      { speed: 0.3, content: "◆", className: "text-primary/10 text-[120px] top-[15%] left-[10%]" },
+      { speed: 0.1, content: "○", className: "text-primary/8 text-[80px] top-[60%] right-[15%]" },
+      { speed: 0.4, content: "△", className: "text-primary/6 text-[100px] bottom-[20%] left-[70%]" },
     ],
   },
 
