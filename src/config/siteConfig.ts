@@ -62,10 +62,46 @@ export interface FeaturesBlockConfig extends BaseBlock {
   items: FeatureBlockItem[];
 }
 
+export interface FAQBlockConfig extends BaseBlock {
+  type: "faq";
+  questions: { question: string; answer: string }[];
+}
+
+export interface TestimonialsBlockConfig extends BaseBlock {
+  type: "testimonials";
+  testimonials: { name: string; role: string; content: string; avatarUrl: string }[];
+}
+
+export interface LogoBarBlockConfig extends BaseBlock {
+  type: "logobar";
+  logos: { name: string; logoUrl: string }[];
+}
+
+export interface ProcessBlockConfig extends BaseBlock {
+  type: "process";
+  steps: { icon: string; title: string; description: string }[];
+}
+
+export interface TeamBlockConfig extends BaseBlock {
+  type: "team";
+  members: { name: string; role: string; photoUrl: string }[];
+}
+
+export interface StatsBlockConfig extends BaseBlock {
+  type: "stats";
+  stats: { value: string; label: string }[];
+}
+
 export type ContentBlockConfig =
   | ImageBlockConfig
   | VideoBlockConfig
-  | FeaturesBlockConfig;
+  | FeaturesBlockConfig
+  | FAQBlockConfig
+  | TestimonialsBlockConfig
+  | LogoBarBlockConfig
+  | ProcessBlockConfig
+  | TeamBlockConfig
+  | StatsBlockConfig;
 
 export interface ExperienceCard {
   icon: string;
@@ -217,6 +253,116 @@ export const siteConfig: SiteConfig = {
         { icon: "Palette", title: "Design Tokens", description: "Sistema semântico de cores HSL com suporte nativo a temas." },
         { icon: "Code2", title: "DX Premium", description: "TypeScript estrito, auto-complete rico e zero configuração manual." },
         { icon: "Shield", title: "Segurança First", description: "Validação Zod em todas as entradas e sanitização automática." },
+      ],
+    },
+    {
+      id: "stats",
+      type: "stats",
+      title: "Resultados que",
+      highlight: "falam por si",
+      description: "Números reais de clientes que adotaram o Padrão Ravius em seus negócios.",
+      stats: [
+        { value: "+320%", label: "Aumento em conversões" },
+        { value: "1.2s", label: "Tempo médio de carregamento" },
+        { value: "98", label: "Pontuação Lighthouse" },
+        { value: "+150", label: "Projetos entregues" },
+      ],
+    },
+    {
+      id: "process",
+      type: "process",
+      title: "Como",
+      highlight: "funciona",
+      description: "Um processo claro e eficiente para transformar sua presença digital em semanas, não meses.",
+      steps: [
+        { icon: "MessageSquare", title: "Descoberta", description: "Entendemos seu negócio, público-alvo e objetivos para traçar a estratégia ideal." },
+        { icon: "PenTool", title: "Design & Prototipação", description: "Criamos protótipos interativos com seu branding aplicado ao Padrão Ravius." },
+        { icon: "Code2", title: "Desenvolvimento", description: "Implementação modular com TypeScript estrito, testes e deploy automatizado." },
+        { icon: "Rocket", title: "Lançamento & Suporte", description: "Deploy em produção com monitoramento, analytics e suporte contínuo pós-lançamento." },
+      ],
+    },
+    {
+      id: "testimonials",
+      type: "testimonials",
+      title: "O que nossos clientes",
+      highlight: "dizem",
+      description: "Depoimentos reais de profissionais que transformaram seus negócios com o Padrão Ravius.",
+      testimonials: [
+        {
+          name: "Dra. Camila Ferreira",
+          role: "Diretora — Clínica Vitale",
+          content: "Depois de adotar o Ravius, nosso agendamento online cresceu 240%. A landing page transmite exatamente a sofisticação que nossos pacientes esperam.",
+          avatarUrl: "https://images.unsplash.com/photo-1594824476967-48c8b964ac31?w=100&h=100&fit=crop&crop=face",
+        },
+        {
+          name: "Ricardo Mendes",
+          role: "CEO — Aura Spa & Wellness",
+          content: "A velocidade de carregamento e as animações fluidas fizeram toda a diferença. Nossos clientes comentam sobre a experiência do site antes mesmo da primeira sessão.",
+          avatarUrl: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100&h=100&fit=crop&crop=face",
+        },
+        {
+          name: "Ana Beatriz Costa",
+          role: "Fundadora — Studio Lumière",
+          content: "Ter uma landing page que reflete a identidade do meu estúdio era essencial. O Ravius entregou isso com uma arquitetura que minha equipe de marketing consegue atualizar sozinha.",
+          avatarUrl: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=100&h=100&fit=crop&crop=face",
+        },
+      ],
+    },
+    {
+      id: "logos",
+      type: "logobar",
+      title: "Empresas que",
+      highlight: "confiam",
+      description: "Parceiros e clientes que já utilizam o Padrão Ravius em seus projetos.",
+      logos: [
+        { name: "Clínica Vitale", logoUrl: "https://placehold.co/160x48/0A0A0A/FFFDE0?text=Vitale&font=outfit" },
+        { name: "Aura Spa", logoUrl: "https://placehold.co/160x48/0A0A0A/FFFDE0?text=Aura+Spa&font=outfit" },
+        { name: "Studio Lumière", logoUrl: "https://placehold.co/160x48/0A0A0A/FFFDE0?text=Lumière&font=outfit" },
+        { name: "Dermavita", logoUrl: "https://placehold.co/160x48/0A0A0A/FFFDE0?text=Dermavita&font=outfit" },
+        { name: "ZenFlow", logoUrl: "https://placehold.co/160x48/0A0A0A/FFFDE0?text=ZenFlow&font=outfit" },
+        { name: "NeoHealth", logoUrl: "https://placehold.co/160x48/0A0A0A/FFFDE0?text=NeoHealth&font=outfit" },
+      ],
+    },
+    {
+      id: "team",
+      type: "team",
+      title: "Quem está por",
+      highlight: "trás",
+      description: "Conheça a equipe que desenha, desenvolve e mantém o Padrão Ravius.",
+      members: [
+        { name: "Samuel Oliveira", role: "Arquiteto Front-end", photoUrl: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=200&h=200&fit=crop&crop=face" },
+        { name: "Mariana Silva", role: "UI/UX Designer", photoUrl: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=200&h=200&fit=crop&crop=face" },
+        { name: "Lucas Andrade", role: "Engenheiro Full-stack", photoUrl: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=200&h=200&fit=crop&crop=face" },
+        { name: "Isabela Costa", role: "Estrategista Digital", photoUrl: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=200&h=200&fit=crop&crop=face" },
+      ],
+    },
+    {
+      id: "faq",
+      type: "faq",
+      title: "Perguntas",
+      highlight: "frequentes",
+      description: "Tire suas dúvidas sobre o Padrão Ravius e como ele pode ajudar seu negócio.",
+      questions: [
+        {
+          question: "O que é o Padrão Ravius?",
+          answer: "É uma arquitetura front-end modular e tipada, projetada para criar landing pages de alta performance. Ele separa dados, lógica e visual em camadas independentes, permitindo escalar e personalizar sem reescrever código.",
+        },
+        {
+          question: "Preciso saber programar para usar?",
+          answer: "Para personalizar conteúdo, não — basta editar o arquivo siteConfig.ts. Para criar novos componentes ou alterar o comportamento, conhecimentos de React e TypeScript são recomendados.",
+        },
+        {
+          question: "Qual o tempo médio de implementação?",
+          answer: "Um projeto completo com branding personalizado é entregue em 2 a 4 semanas. Projetos que usam o template base podem estar no ar em poucos dias.",
+        },
+        {
+          question: "O Ravius funciona com qualquer back-end?",
+          answer: "Sim. Como é uma solução puramente front-end (React + Vite), ele pode consumir qualquer API REST ou GraphQL. A integração com Supabase, Firebase ou back-ends customizados é direta.",
+        },
+        {
+          question: "Há suporte após o lançamento?",
+          answer: "Oferecemos planos de suporte contínuo que incluem atualizações de dependências, monitoramento de performance e ajustes de conteúdo sob demanda.",
+        },
       ],
     },
   ],

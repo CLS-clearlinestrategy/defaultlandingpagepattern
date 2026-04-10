@@ -6,6 +6,12 @@ import Hero from "@/components/Hero";
 import ContentBlock from "@/components/ContentBlock";
 import VideoContentBlock from "@/components/VideoContentBlock";
 import FeaturesContentBlock from "@/components/FeaturesContentBlock";
+import FAQContentBlock from "@/components/FAQContentBlock";
+import TestimonialsContentBlock from "@/components/TestimonialsContentBlock";
+import LogoBarContentBlock from "@/components/LogoBarContentBlock";
+import ProcessContentBlock from "@/components/ProcessContentBlock";
+import TeamContentBlock from "@/components/TeamContentBlock";
+import StatsContentBlock from "@/components/StatsContentBlock";
 import ExperiencesGrid from "@/components/ExperiencesGrid";
 import ContactForm from "@/components/ContactForm";
 import Footer from "@/components/Footer";
@@ -18,6 +24,18 @@ const renderBlock = (block: ContentBlockConfig) => {
       return <VideoContentBlock key={block.id} data={block} />;
     case "features":
       return <FeaturesContentBlock key={block.id} data={block} />;
+    case "faq":
+      return <FAQContentBlock key={block.id} data={block} />;
+    case "testimonials":
+      return <TestimonialsContentBlock key={block.id} data={block} />;
+    case "logobar":
+      return <LogoBarContentBlock key={block.id} data={block} />;
+    case "process":
+      return <ProcessContentBlock key={block.id} data={block} />;
+    case "team":
+      return <TeamContentBlock key={block.id} data={block} />;
+    case "stats":
+      return <StatsContentBlock key={block.id} data={block} />;
   }
 };
 

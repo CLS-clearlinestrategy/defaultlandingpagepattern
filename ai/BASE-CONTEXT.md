@@ -1,7 +1,7 @@
 # [SYSTEM_CONTEXT_RAVIUS_PATTERN]
 **Role:** Senior Front-end Architect.
 **Objective:** Maintain, expand, and debug the Ravius Landing Page Template.
-**Tech Stack:** React 18+, TypeScript (Strict), Vite, Tailwind CSS, Lenis (Smooth Scroll), Radix/Shadcn (UI Primitives), React Query.
+**Tech Stack:** React 18+, TypeScript (Strict), Vite, Tailwind CSS, Lenis (Smooth Scroll), React Query, Lucide React (Icons).
 
 ## 1. ARCHITECTURE: THE 4 ISOLATED LAYERS
 The project strictly follows a 4-layer separation of concerns. **Never mix responsibilities.**
@@ -9,7 +9,9 @@ The project strictly follows a 4-layer separation of concerns. **Never mix respo
 ### 1.1 Data Layer (`src/config/siteConfig.ts`)
 * **Role:** Single Source of Truth (SSoT) for all content.
 * **Rule:** Components (`.tsx`) MUST NOT contain hardcoded copy, image paths, or external links. All data is injected via props from this file.
-* **Typing:** Must use strict TypeScript interfaces (e.g., `HeroConfig`, `ContentBlockConfig`). Use Discriminated Unions for polymorphic arrays.
+* **Typing:** Strict TypeScript interfaces. Polymorphic content uses a Discriminated Union (`ContentBlockConfig`) with 9 block types:
+  `image` | `video` | `features` | `faq` | `testimonials` | `logobar` | `process` | `team` | `stats`
+* **Global Config:** `BackgroundGifConfig` controls the default animated background (gifUrl, overlayColor, blur).
 
 ### 1.2 Logic Layer (`src/hooks/`)
 * **Role:** Math, DOM observation, and browser APIs.
@@ -28,6 +30,10 @@ The project strictly follows a 4-layer separation of concerns. **Never mix respo
 ### 1.4 Structure Layer (`src/components/`)
 * **Role:** Dumb rendering blocks.
 * **Rule:** Components merge Data (Props), Style (Tailwind), and Logic (Hooks). They do not mutate data or handle complex state locally unless it's pure UI state (e.g., accordion open/close).
+* **Content Block Components** (1:1 map to `ContentBlockConfig.type`):
+  `ContentBlock` (image) · `VideoContentBlock` · `FeaturesContentBlock` · `FAQContentBlock` · `TestimonialsContentBlock` · `LogoBarContentBlock` · `ProcessContentBlock` · `TeamContentBlock` · `StatsContentBlock`
+* **Utility Components:** `BackgroundGif` (animated background layer, reads defaults from `siteConfig.backgroundGif`), `Navbar`, `Hero`, `ExperiencesGrid`, `ContactForm`, `Footer`.
+* **Icon Mapping:** Lucide icons are resolved at render time via a shared `iconMap: Record<string, Component>` pattern. Icon names in `siteConfig` are strings (e.g., `"Rocket"`) matched to imports.
 
 ---
 
@@ -38,11 +44,11 @@ The project strictly follows a 4-layer separation of concerns. **Never mix respo
 * **Action:** Modify ONLY `src/config/siteConfig.ts`. Do NOT touch `.tsx` files.
 
 ### 2.2 Adding a New Section Type (Polymorphic Expansion)
-When expanding the layout (e.g., adding a Video Block or FAQ Block), execute precisely in this order:
-1.  **Config:** Update the Base Union Type in `siteConfig.ts` (e.g., `type ContentType = 'image' | 'video' | 'faq'`).
-2.  **Interface:** Create the strict interface (e.g., `interface FAQBlock extends BaseBlock { type: 'faq'; questions: Array<{q: string, a: string}> }`).
-3.  **Component:** Create `FAQContentBlock.tsx` in `/components`. Inherit styling and hooks from existing components to maintain Motion UX.
-4.  **Orchestration:** Update the mapping logic in `src/pages/Index.tsx` via `switch` statement to render the new component based on `block.type`.
+When expanding the layout, execute precisely in this order:
+1.  **Config:** Add new type literal to the Union and create its interface extending `BaseBlock` in `siteConfig.ts`.
+2.  **Data:** Add example block entry to `siteConfig.contentBlocks[]`.
+3.  **Component:** Create `<Type>ContentBlock.tsx` in `/components`. Use `useScrollReveal` for Motion UX, `glass-subtle`/`glass-strong` for styling.
+4.  **Orchestration:** Add `case` to `renderBlock()` switch in `src/pages/Index.tsx`.
 
 ### 2.3 Debugging Performance/UI
 * **Scroll/Jank issues:** Check `/hooks` first. Ensure `requestAnimationFrame` is properly cancelled on unmount.
