@@ -138,7 +138,7 @@ export const siteConfig: SiteConfig = {
   },
 
   hero: {
-    badge: "Novo — v2.0 disponível",
+    badge: "Versão - v1.1 - S0",
     title: "Construa experiências",
     highlight: "extraordinárias",
     subtitle:
@@ -149,7 +149,7 @@ export const siteConfig: SiteConfig = {
     ctaSecondaryHref: "#about",
     parallaxLayers: [
       { speed: 0.3, content: "◆", className: "text-primary/10 text-[120px] top-[15%] left-[10%]" },
-      { speed: 0.1, content: "○", className: "text-primary/8 text-[80px] top-[60%] right-[15%]" },
+      { speed: 0.2, content: "○", className: "text-primary/8 text-[80px] top-[60%] right-[15%]" },
       { speed: 0.4, content: "△", className: "text-primary/6 text-[100px] bottom-[20%] left-[70%]" },
     ],
   },
