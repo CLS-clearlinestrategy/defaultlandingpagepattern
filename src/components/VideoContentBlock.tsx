@@ -29,7 +29,8 @@ const VideoContentBlock = ({ data }: VideoContentBlockProps) => {
                 src={data.videoUrl}
                 title={data.title}
                 className="w-full aspect-video rounded-xl"
-                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                sandbox="allow-same-origin allow-scripts allow-presentation allow-popups"
                 allowFullScreen
                 loading="lazy"
               />
