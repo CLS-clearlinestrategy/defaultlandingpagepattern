@@ -1,9 +1,35 @@
 import { TeamBlockConfig } from "@/config/siteConfig";
 import { useScrollReveal } from "@/hooks/useScrollReveal";
+import ParallaxLayer from "./ParallaxLayer";
 
 interface TeamContentBlockProps {
   data: TeamBlockConfig;
 }
+
+interface TeamCardProps {
+  member: TeamBlockConfig["members"][number];
+}
+
+const TeamCard = ({ member }: TeamCardProps) => {
+  return (
+    <div className="group glass-subtle rounded-2xl p-5 text-center hover:-translate-y-1 transition-all duration-300">
+      <ParallaxLayer speed={0.05} className="relative w-24 h-24 mx-auto mb-5 rounded-full overflow-hidden ring-2 ring-primary/10 group-hover:ring-primary/30 transition-all">
+        <img
+          src={member.photoUrl}
+          alt={member.name}
+          className="w-full h-full object-cover"
+          loading="lazy"
+        />
+      </ParallaxLayer>
+      <h3 className="font-semibold text-foreground group-hover:text-primary transition-colors">
+        {member.name}
+      </h3>
+      <p className="text-sm text-muted-foreground mt-1">
+        {member.role}
+      </p>
+    </div>
+  );
+};
 
 const TeamContentBlock = ({ data }: TeamContentBlockProps) => {
   const containerRef = useScrollReveal<HTMLDivElement>();
@@ -29,25 +55,7 @@ const TeamContentBlock = ({ data }: TeamContentBlockProps) => {
         {/* Team grid */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 max-w-5xl mx-auto">
           {data.members.map((member, i) => (
-            <div
-              key={i}
-              className="group glass-subtle rounded-2xl p-5 text-center hover:-translate-y-1 transition-all duration-300"
-            >
-              <div className="relative w-24 h-24 mx-auto mb-5 rounded-full overflow-hidden ring-2 ring-primary/10 group-hover:ring-primary/30 transition-all">
-                <img
-                  src={member.photoUrl}
-                  alt={member.name}
-                  className="w-full h-full object-cover"
-                  loading="lazy"
-                />
-              </div>
-              <h3 className="font-semibold text-foreground group-hover:text-primary transition-colors">
-                {member.name}
-              </h3>
-              <p className="text-sm text-muted-foreground mt-1">
-                {member.role}
-              </p>
-            </div>
+            <TeamCard key={i} member={member} />
           ))}
         </div>
       </div>

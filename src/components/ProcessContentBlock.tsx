@@ -1,5 +1,6 @@
 import { ProcessBlockConfig } from "@/config/siteConfig";
 import { useScrollReveal } from "@/hooks/useScrollReveal";
+import ParallaxLayer from "./ParallaxLayer";
 import {
   Zap, Layers, Shield, Sparkles, Rocket, Palette,
   Code2, BarChart3, Globe, Lock, MessageSquare, PenTool,
@@ -18,8 +19,19 @@ const ProcessContentBlock = ({ data }: ProcessContentBlockProps) => {
   const containerRef = useScrollReveal<HTMLDivElement>();
 
   return (
-    <section id={data.id} className="py-20 md:py-28">
-      <div ref={containerRef} className="container mx-auto px-6">
+    <section id={data.id} className="relative py-20 md:py-28 overflow-hidden">
+      {/* Decorative parallax elements */}
+      <ParallaxLayer speed={0.15} className="absolute top-[10%] left-[5%] pointer-events-none select-none">
+        <div className="w-72 h-72 rounded-full bg-primary/5 blur-3xl" aria-hidden="true" />
+      </ParallaxLayer>
+      <ParallaxLayer speed={0.3} className="absolute bottom-[15%] right-[8%] pointer-events-none select-none">
+        <div className="w-56 h-56 rounded-full glass-glow" aria-hidden="true" />
+      </ParallaxLayer>
+      <ParallaxLayer speed={-0.1} className="absolute top-[55%] left-[70%] pointer-events-none select-none">
+        <div className="w-40 h-40 rounded-full bg-secondary/5 blur-2xl" aria-hidden="true" />
+      </ParallaxLayer>
+
+      <div ref={containerRef} className="container mx-auto px-6 relative z-10">
         {/* Header */}
         <div className="text-center mb-16 max-w-2xl mx-auto">
           <h2 className="text-3xl md:text-4xl font-bold leading-tight mb-4">

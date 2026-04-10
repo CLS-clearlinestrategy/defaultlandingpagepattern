@@ -1,5 +1,6 @@
 import { StatsBlockConfig } from "@/config/siteConfig";
 import { useScrollReveal } from "@/hooks/useScrollReveal";
+import ParallaxLayer from "./ParallaxLayer";
 
 interface StatsContentBlockProps {
   data: StatsBlockConfig;
@@ -9,8 +10,16 @@ const StatsContentBlock = ({ data }: StatsContentBlockProps) => {
   const containerRef = useScrollReveal<HTMLDivElement>();
 
   return (
-    <section id={data.id} className="py-20 md:py-28">
-      <div ref={containerRef} className="container mx-auto px-6">
+    <section id={data.id} className="relative py-20 md:py-28 overflow-hidden">
+      {/* Decorative parallax elements */}
+      <ParallaxLayer speed={-0.1} className="absolute top-[20%] right-[10%] pointer-events-none select-none">
+        <div className="w-80 h-80 rounded-full bg-primary/5 blur-3xl" aria-hidden="true" />
+      </ParallaxLayer>
+      <ParallaxLayer speed={0.2} className="absolute bottom-[10%] left-[5%] pointer-events-none select-none">
+        <div className="w-64 h-64 rounded-full bg-secondary/8 blur-3xl" aria-hidden="true" />
+      </ParallaxLayer>
+
+      <div ref={containerRef} className="container mx-auto px-6 relative z-10">
         {/* Header */}
         <div className="text-center mb-14 max-w-2xl mx-auto">
           <h2 className="text-3xl md:text-4xl font-bold leading-tight mb-4">
