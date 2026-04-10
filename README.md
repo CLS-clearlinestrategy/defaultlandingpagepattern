@@ -47,13 +47,9 @@ A aplicação é construída sobre o **Padrão Ravius de Arquitetura Front-End**
 | [Tailwind CSS](https://tailwindcss.com/) | 3.4.17 | Utilitários de estilo + Design Tokens |
 | [React Router](https://reactrouter.com/) | 6.30.1 | Roteamento SPA |
 | [Lenis](https://lenis.darkroom.engineering/) | 1.3.21 | Smooth scroll com física real |
-| [shadcn/ui](https://ui.shadcn.com/) + [Radix UI](https://www.radix-ui.com/) | — | Primitivos de UI acessíveis |
 | [Lucide React](https://lucide.dev/) | 0.462.0 | Iconografia |
-| [React Hook Form](https://react-hook-form.com/) | 7.61.1 | Gerenciamento de formulários |
-| [Zod](https://zod.dev/) | 3.25.76 | Validação de schema tipada |
 | [TanStack Query](https://tanstack.com/query) | 5.83.0 | Estado assíncrono e cache |
 | [Sonner](https://sonner.emilkowal.ski/) | 1.7.4 | Notificações toast |
-| [Recharts](https://recharts.org/) | 2.15.4 | Gráficos (disponível, não ativo por padrão) |
 | [Vitest](https://vitest.dev/) | 3.2.4 | Testes unitários |
 
 > **Gerenciador de pacotes:** [Bun](https://bun.sh/). Os comandos abaixo usam `bun` — substitua por `npm run` se preferir.
@@ -100,26 +96,33 @@ Edite os dados, salve, e o site atualiza em tempo real. Nenhum componente precis
 landing-page-template/
 │
 ├── ai/
-│   └── BASE-CONTEXT.md           # Contexto de sistema para IAs (Cursor, Copilot, Lovable)
+│   ├── BASE-CONTEXT.md           # Contexto de sistema para IAs (Cursor, Copilot, Lovable)
+│   ├── CLEAN-CODE.md             # Checklist de limpeza pós-boilerplate
+│   └── Prompt.md                 # Prompts de expansão para agentes IA
 │
 ├── public/
 │   ├── robots.txt
-│   └── placeholder.svg
+│   └── favicon assets
 │
 ├── src/
 │   ├── config/
 │   │   └── siteConfig.ts         # 🟡 CAMADA DE DADOS — único ponto de verdade do conteúdo
 │   │
 │   ├── hooks/                    # 🔵 CAMADA DE LÓGICA — inteligência do navegador
-│   │   ├── useParallax.ts        # Efeito parallax via requestAnimationFrame
-│   │   ├── useScrollReveal.ts    # Animação de entrada via IntersectionObserver
+│   │   ├── useParallax.ts        # Efeito parallax via rAF (retorna { ref, offset, progress })
+│   │   ├── useScrollReveal.ts    # Animação de entrada via IntersectionObserver (retorna { ref, isVisible })
 │   │   ├── useHeroVisibility.ts  # Detecta visibilidade do Hero (controla Navbar)
 │   │   ├── useSmoothScroll.ts    # Lenis smooth scroll + navegação por âncoras
 │   │   ├── use-mobile.tsx        # Detecta viewport mobile (< 768px)
 │   │   └── use-toast.ts          # Gerenciamento de estado de toasts
 │   │
 │   ├── components/
-│   │   ├── ui/                   # Primitivos shadcn/ui (não editar diretamente)
+│   │   ├── core/                 # Wrappers de infraestrutura (não editados diretamente)
+│   │   │   └── RevealBlock.tsx   # Encapsula useScrollReveal — todas as animações de entrada
+│   │   │
+│   │   ├── ParallaxLayer.tsx     # Wrapper GPU-accelerated para efeitos de profundidade
+│   │   ├── ParallaxRevealImage.tsx # Efeito premium: clipPath + scale + parallax
+│   │   ├── BackgroundGif.tsx     # Fundo animado configurável (gif + overlay + blur)
 │   │   │
 │   │   ├── Hero.tsx              # 🔴 Seção hero com parallax em camadas decorativas
 │   │   ├── Navbar.tsx            # Navbar responsiva (transparente → glass no scroll)
@@ -127,8 +130,14 @@ landing-page-template/
 │   │   ├── ContentBlock.tsx      # Bloco imagem + texto (type: "image")
 │   │   ├── VideoContentBlock.tsx # Bloco vídeo + texto (type: "video")
 │   │   ├── FeaturesContentBlock.tsx # Grid de features (type: "features")
+│   │   ├── FAQContentBlock.tsx   # Accordion de perguntas (type: "faq")
+│   │   ├── TestimonialsContentBlock.tsx # Grid de depoimentos (type: "testimonials")
+│   │   ├── LogoBarContentBlock.tsx # Marquee dupla de logos (type: "logobar")
+│   │   ├── ProcessContentBlock.tsx # Timeline de etapas (type: "process")
+│   │   ├── TeamContentBlock.tsx  # Grid de membros da equipe (type: "team")
+│   │   ├── StatsContentBlock.tsx # Grid de estatísticas (type: "stats")
 │   │   ├── ExperiencesGrid.tsx   # Grid de cards de experiências/diferenciais
-│   │   ├── ContactForm.tsx       # Formulário com useReducer + Zod + Sonner
+│   │   ├── ContactForm.tsx       # Formulário com useReducer + validação nativa + Sonner
 │   │   └── NavLink.tsx           # Wrapper tipado do NavLink do React Router
 │   │
 │   ├── pages/
@@ -168,42 +177,19 @@ siteConfig.ts ──► Index.tsx ──► <Componente /> ──► useHook()
 
 Nenhum componente `.tsx` pode conter texto, URL ou configuração hardcoded. Tudo é injetado via props a partir daqui. Se a interface `SiteConfig` for quebrada, o build falha antes do deploy.
 
-O conteúdo dos blocos de página é modelado como **Discriminated Union** — o TypeScript garante que cada tipo de bloco tenha exatamente os campos que precisa, e que nenhuma variante seja ignorada silenciosamente no `switch` do orquestrador:
+O conteúdo dos blocos de página é modelado como **Discriminated Union** com **9 tipos de bloco** — o TypeScript garante que cada tipo tenha exatamente os campos que precisa, e que nenhuma variante seja ignorada silenciosamente no `switch` do orquestrador:
 
 ```typescript
-// src/config/siteConfig.ts
-
 export type ContentBlockConfig =
-  | ImageBlockConfig     // type: "image"
-  | VideoBlockConfig     // type: "video"
-  | FeaturesBlockConfig  // type: "features"
-
-// Bloco de imagem com lista de checkmarks opcional
-{
-  id: "about",
-  type: "image",
-  title: "Arquitetura que",
-  highlight: "escala",           // palavra renderizada na cor primária
-  description: "...",
-  imageUrl: "https://...",
-  imageAlt: "Dashboard modular",
-  imagePosition: "right",        // "left" | "right"
-  features: [                    // opcional — lista de checkmarks
-    "Configuração centralizada em um único arquivo",
-    "Hooks reutilizáveis e testáveis",
-  ],
-}
-
-// Bloco de vídeo — YouTube, Vimeo ou arquivo mp4 direto
-{
-  id: "demo-video",
-  type: "video",
-  title: "Veja em",
-  highlight: "ação",
-  videoUrl: "https://www.youtube.com/embed/...", // iframe se youtube/vimeo, <video> caso contrário
-  posterImage: "https://...",
-  videoPosition: "left",
-}
+  | ImageBlockConfig        // type: "image"
+  | VideoBlockConfig        // type: "video"
+  | FeaturesBlockConfig     // type: "features"
+  | FAQBlockConfig          // type: "faq"
+  | TestimonialsBlockConfig // type: "testimonials"
+  | LogoBarBlockConfig      // type: "logobar"
+  | ProcessBlockConfig      // type: "process"
+  | TeamBlockConfig         // type: "team"
+  | StatsBlockConfig        // type: "stats"
 ```
 
 ---
@@ -214,30 +200,50 @@ export type ContentBlockConfig =
 
 Hooks encapsulam toda a inteligência do navegador. A regra é rígida: hooks **não renderizam JSX** e **não carregam dados externos** — apenas calculam estados primitivos (`boolean`, `number`, `ref`) e os devolvem.
 
-#### `useParallax(speed)`
+#### `useParallax(configOrSpeed)`
 
-Calcula o offset de translação vertical de um elemento com base na posição do scroll, usando `requestAnimationFrame` com flag de `ticking` para garantir 60fps sem jank. Cancela o `rAF` no cleanup para evitar memory leaks.
+Calcula o offset de translação vertical de um elemento com base na posição do scroll, usando `requestAnimationFrame` com flag de `ticking` e `useCallback` estável para garantir 60fps sem jank. Escuta eventos `scroll` e `resize`. Cancela o `rAF` no cleanup para evitar memory leaks.
 
 ```typescript
+// Forma simples (retrocompatível)
 const { ref, offset } = useParallax(0.06)
-// use: style={{ transform: `translateY(${offset}px)` }}
+
+// Forma avançada com config
+const { ref, offset, progress } = useParallax({
+  speed: 0.15,
+  direction: "vertical",  // "vertical" | "horizontal"
+  disabled: false,
+})
 ```
 
 | Parâmetro | Tipo | Padrão | Descrição |
 |---|---|---|---|
-| `speed` | `number` | `0.3` | Intensidade do efeito. `0.05` = sutil, `0.3` = médio, `1` = intenso |
+| `configOrSpeed` | `number \| ParallaxConfig` | `0.3` | Velocidade direta ou objeto de configuração |
+| `speed` | `number` | `0.3` | Intensidade. `0.05` = sutil, `0.3` = médio, `1` = intenso |
+| `direction` | `string` | `"vertical"` | Eixo do efeito |
+| `disabled` | `boolean` | `false` | Desativa o efeito sem desmontar |
 
-#### `useScrollReveal<T>(options?)`
+| Retorno | Tipo | Descrição |
+|---|---|---|
+| `ref` | `RefObject<HTMLDivElement>` | Ref para o elemento observado |
+| `offset` | `number` | Valor de translação em pixels |
+| `progress` | `number` | Progresso de 0 (entrada) a 1 (saída do viewport) |
 
-Adiciona as classes `.reveal-hidden` e `.reveal-visible` no elemento via `IntersectionObserver`, disparando a transição CSS de entrada definida em `index.css` (`opacity + translateY`, 0.8s com curva de mola `cubic-bezier(0.16, 1, 0.3, 1)`).
+> **Importante:** Em componentes de conteúdo, prefira usar `<ParallaxLayer>` ao invés de chamar o hook diretamente.
+
+#### `useScrollReveal<T>(threshold?)`
+
+Monitora a entrada do elemento no viewport via `IntersectionObserver`. Dispara uma vez e chama `unobserve` para performance.
 
 ```typescript
-const ref = useScrollReveal<HTMLDivElement>({
-  threshold: 0.15,                   // padrão — % do elemento visível para disparar
-  rootMargin: "0px 0px -50px 0px",  // padrão — dispara 50px antes de entrar na tela
-  once: true,                        // padrão — anima apenas na primeira vez
-})
+const { ref, isVisible } = useScrollReveal<HTMLDivElement>(0.15)
 ```
+
+| Parâmetro | Tipo | Padrão | Descrição |
+|---|---|---|---|
+| `threshold` | `number` | `0.15` | Fração do elemento visível para disparar |
+
+> **Importante:** Em componentes de conteúdo, prefira usar `<RevealBlock>` ao invés de chamar o hook diretamente.
 
 #### `useHeroVisibility(threshold?)`
 
@@ -255,13 +261,6 @@ Inicializa o [Lenis](https://lenis.darkroom.engineering/) com `duration: 1.2` e 
 ```typescript
 // src/pages/Index.tsx — chamado uma única vez no topo da página
 useSmoothScroll()
-```
-
-#### `useHeroVisibility(threshold?)`
-
-```typescript
-// src/hooks/useHeroVisibility.ts — threshold padrão: 0.3
-const { heroRef, isHeroVisible } = useHeroVisibility()
 ```
 
 ---
@@ -301,20 +300,20 @@ Três classes globais prontas para uso. **Não escreva `backdrop-filter` inline 
 | `.glass-strong` | 7% | 24px | Navbar após scroll, formulários, modais |
 | `.glass-glow` | 5% (cor primária) | 20px | Badges e elementos com brilho verde |
 
-#### Animações de Scroll Reveal
+#### Animações
 
-As classes abaixo são gerenciadas pelo hook `useScrollReveal`. Não as aplique manualmente.
+| Classe Tailwind | Duração | Descrição |
+|---|---|---|
+| `animate-marquee` | 30s | Scroll horizontal infinito (esquerda → direita) |
+| `animate-marquee-reverse` | 35s | Scroll horizontal infinito (direita → esquerda) |
 
-```css
-.reveal-hidden  { opacity: 0; transform: translateY(30px); transition: ... 0.8s cubic-bezier(0.16,1,0.3,1) }
-.reveal-visible { opacity: 1; transform: translateY(0) }
-```
+> As transições de scroll reveal são gerenciadas inline pelo componente `<RevealBlock>` — não existem mais classes CSS `.reveal-hidden`/`.reveal-visible`.
+
 ---
+
 #### Background animado
 
-Um dos componentes que da alma ao design padrão Ravius é o BackgroundGif.tsx, que é um componente que recebe uma url de um gif e aplica um overlay de cor sobre ele.
-
-Esse componente recebe como props:
+Um dos componentes que dá alma ao design padrão Ravius é o `BackgroundGif.tsx`, que aplica um overlay de cor sobre um GIF animado de fundo.
 
 ```typescript
 interface BackgroundGifProps {
@@ -323,10 +322,11 @@ interface BackgroundGifProps {
   blur?: string;
 }
 ```
-Porém já tem valores padrões que podem ser sobrescritos ou não.
-O componente pode ser utilizando em diversos contextos como background de seções, cards, etc.
+
+Possui valores padrões que podem ser sobrescritos. Pode ser utilizado em diversos contextos como background de seções, cards, etc.
 
 > Fonte padrão de gifs: [Erica Of Anderson](https://giphy.com/ericaofanderson)
+
 ---
 
 ### 🔴 Camada de Estrutura — `src/components/` e `src/pages/`
@@ -335,31 +335,51 @@ O componente pode ser utilizando em diversos contextos como background de seçõ
 
 Componentes são "burros": recebem dados via props, aplicam estilos via Tailwind e delegam lógica para os hooks. Não fazem fetch, não mutam estado global e não calculam animações diretamente.
 
+#### Componentes de Infraestrutura
+
+Wrappers que encapsulam hooks, mantendo os componentes de conteúdo limpos:
+
+| Componente | Papel | Props principais |
+|---|---|---|
+| `RevealBlock` | Animação de entrada no scroll (opacity + translateY) | `children`, `className`, `delay` |
+| `ParallaxLayer` | Profundidade 3D via `translate3d` GPU-accelerated | `speed`, `children`, `className`, `disabled` |
+| `ParallaxRevealImage` | Reveal premium com `clipPath` + scale + parallax | `src`, `alt`, `speed`, `className` |
+
+**Padrão de uso — `RevealBlock` com stagger:**
+
 ```tsx
-// src/components/ContentBlock.tsx — componente correto
-
-interface ContentBlockProps {
-  data: ImageBlockConfig  // tipo vem do siteConfig, nunca redefinido aqui
-}
-
-const ContentBlock = ({ data }: ContentBlockProps) => {
-  const containerRef = useScrollReveal<HTMLDivElement>() // delega lógica
-  const isLeft = data.imagePosition === "left"
-
-  return (
-    <section id={data.id} className="py-20 md:py-28">
-      <div
-        ref={containerRef}
-        className={`container mx-auto px-6 flex flex-col ${
-          isLeft ? "md:flex-row" : "md:flex-row-reverse"
-        } items-center gap-12 md:gap-16`}
-      >
-        {/* renderiza dados recebidos — não os gera */}
-      </div>
-    </section>
-  )
-}
+// Efeito cascata em listas — cada card aparece 100ms após o anterior
+{data.items.map((item, i) => (
+  <RevealBlock key={i} delay={i * 100}>
+    <div className="glass-subtle rounded-2xl p-6">
+      {/* conteúdo do card */}
+    </div>
+  </RevealBlock>
+))}
 ```
+
+**Padrão de uso — `ParallaxLayer` para decorativos:**
+
+```tsx
+// Elementos de fundo com profundidade
+<ParallaxLayer speed={0.15} className="absolute top-[10%] left-[5%]">
+  <div className="w-72 h-72 rounded-full bg-primary/5 blur-3xl" />
+</ParallaxLayer>
+```
+
+#### Componentes de Conteúdo (1:1 com `ContentBlockConfig.type`)
+
+| Componente | Tipo | Descrição |
+|---|---|---|
+| `ContentBlock` | `image` | Imagem + texto com lista de checkmarks |
+| `VideoContentBlock` | `video` | YouTube/Vimeo/mp4 + texto |
+| `FeaturesContentBlock` | `features` | Grid 2-col de features com ícones |
+| `FAQContentBlock` | `faq` | Accordion de perguntas com animação |
+| `TestimonialsContentBlock` | `testimonials` | Grid de depoimentos com quote decorativa |
+| `LogoBarContentBlock` | `logobar` | Dual marquee com parallax horizontal |
+| `ProcessContentBlock` | `process` | Timeline alternada com ícones |
+| `TeamContentBlock` | `team` | Grid de membros com avatar flutuante |
+| `StatsContentBlock` | `stats` | Grid de números com gradiente |
 
 #### `Index.tsx` — O Orquestrador
 
@@ -370,9 +390,15 @@ A página principal importa o `siteConfig`, itera os blocos e despacha cada um p
 
 const renderBlock = (block: ContentBlockConfig) => {
   switch (block.type) {
-    case "image":    return <ContentBlock         key={block.id} data={block} />
-    case "video":    return <VideoContentBlock    key={block.id} data={block} />
-    case "features": return <FeaturesContentBlock key={block.id} data={block} />
+    case "image":        return <ContentBlock            key={block.id} data={block} />
+    case "video":        return <VideoContentBlock       key={block.id} data={block} />
+    case "features":     return <FeaturesContentBlock    key={block.id} data={block} />
+    case "faq":          return <FAQContentBlock         key={block.id} data={block} />
+    case "testimonials": return <TestimonialsContentBlock key={block.id} data={block} />
+    case "logobar":      return <LogoBarContentBlock     key={block.id} data={block} />
+    case "process":      return <ProcessContentBlock     key={block.id} data={block} />
+    case "team":         return <TeamContentBlock        key={block.id} data={block} />
+    case "stats":        return <StatsContentBlock       key={block.id} data={block} />
   }
 }
 
@@ -423,7 +449,7 @@ Abra `index.html` e edite `<title>`, `<meta name="description">` e as tags `og:*
 
 ### Ícones
 
-O mapeamento de string → componente Lucide está nos arquivos `ExperiencesGrid.tsx` e `FeaturesContentBlock.tsx`. Para adicionar novos ícones, importe-os do `lucide-react` e adicione ao `iconMap` local do componente:
+O mapeamento de string → componente Lucide está nos arquivos `ExperiencesGrid.tsx`, `FeaturesContentBlock.tsx` e `ProcessContentBlock.tsx`. Para adicionar novos ícones, importe-os do `lucide-react` e adicione ao `iconMap` local do componente:
 
 ```typescript
 import { Database, CreditCard } from "lucide-react"
@@ -448,63 +474,81 @@ Siga esta ordem para não quebrar o isolamento de camadas.
 **1. Declare a interface e expanda a union em `siteConfig.ts`:**
 
 ```typescript
-export interface FAQBlockConfig extends BaseBlock {
-  type: "faq"
-  questions: Array<{ q: string; a: string }>
+export interface PricingBlockConfig extends BaseBlock {
+  type: "pricing"
+  plans: Array<{ name: string; price: string; features: string[] }>
 }
 
 export type ContentBlockConfig =
   | ImageBlockConfig
   | VideoBlockConfig
-  | FeaturesBlockConfig
-  | FAQBlockConfig  // ← novo
+  | ...
+  | PricingBlockConfig  // ← novo
 ```
 
 **2. Adicione os dados no array `contentBlocks`:**
 
 ```typescript
 {
-  id: "faq",
-  type: "faq",
-  title: "Perguntas",
-  highlight: "frequentes",
-  questions: [{ q: "Como funciona?", a: "..." }],
+  id: "pricing",
+  type: "pricing",
+  title: "Planos que",
+  highlight: "cabem no bolso",
+  plans: [{ name: "Starter", price: "R$49", features: ["..."] }],
 }
 ```
 
-**3. Crie o componente herdando o padrão dos irmãos:**
+**3. Crie o componente usando os wrappers de infraestrutura:**
 
 ```tsx
-// src/components/FAQContentBlock.tsx
+// src/components/PricingContentBlock.tsx
 
-import { FAQBlockConfig } from "@/config/siteConfig"
-import { useScrollReveal } from "@/hooks/useScrollReveal"
+import { PricingBlockConfig } from "@/config/siteConfig"
+import RevealBlock from "./core/RevealBlock"
 
-const FAQContentBlock = ({ data }: { data: FAQBlockConfig }) => {
-  const ref = useScrollReveal<HTMLDivElement>()
-
+const PricingContentBlock = ({ data }: { data: PricingBlockConfig }) => {
   return (
     <section id={data.id} className="py-20 md:py-28">
-      <div ref={ref} className="container mx-auto px-6">
-        <h2 className="text-3xl font-bold">
-          {data.title} <span className="text-primary">{data.highlight}</span>
-        </h2>
-        {/* ... */}
+      <div className="container mx-auto px-6">
+        <RevealBlock className="text-center mb-14">
+          <h2 className="text-3xl font-bold">
+            {data.title} <span className="text-primary">{data.highlight}</span>
+          </h2>
+        </RevealBlock>
+
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          {data.plans.map((plan, i) => (
+            <RevealBlock key={i} delay={i * 100}>
+              <div className="glass-subtle rounded-2xl p-6">
+                {/* ... */}
+              </div>
+            </RevealBlock>
+          ))}
+        </div>
       </div>
     </section>
   )
 }
 
-export default FAQContentBlock
+export default PricingContentBlock
 ```
 
 **4. Registre no `switch` do `Index.tsx`:**
 
 ```tsx
-case "faq": return <FAQContentBlock key={block.id} data={block} />
+case "pricing": return <PricingContentBlock key={block.id} data={block} />
 ```
 
 > O TypeScript emitirá um erro de tipo se o novo `case` for esquecido no `switch`, graças à Discriminated Union.
+
+### Adicionando Efeitos de Movimento
+
+| Objetivo | Componente | Exemplo |
+|---|---|---|
+| Animar entrada no scroll | `<RevealBlock>` | `<RevealBlock delay={200}>...</RevealBlock>` |
+| Profundidade em backgrounds | `<ParallaxLayer>` | `<ParallaxLayer speed={0.15}>...</ParallaxLayer>` |
+| Reveal premium em imagens | `<ParallaxRevealImage>` | `<ParallaxRevealImage src={url} speed={0.2} />` |
+| Scroll horizontal infinito | CSS `animate-marquee` | `className="animate-marquee"` |
 
 ### Adicionando um Novo Hook Global
 
@@ -524,6 +568,8 @@ case "faq": return <FAQContentBlock key={block.id} data={block} />
 | Todo texto e URL vêm do `siteConfig.ts` | Hardcodar strings em qualquer `.tsx` |
 | Lógica de DOM e scroll ficam em hooks | `useEffect` com `document.querySelector` em componentes |
 | Use as classes glassmorphism globais | Escrever `backdrop-filter` inline em componentes |
+| Use `<RevealBlock>` para animações de entrada | Chamar `useScrollReveal` direto em componentes de conteúdo |
+| Use `<ParallaxLayer>` para efeitos de profundidade | Estilos `transform` inline com `useParallax` em componentes |
 | Props tipadas a partir do `siteConfig.ts` | Redefinir interfaces que já existem na camada de dados |
 | `cancelAnimationFrame` no cleanup de hooks | Loops de `rAF` sem limpeza no unmount |
 | "Quick fix" que introduz texto hardcoded? Avise o time antes | Aceitar dívida técnica silenciosamente |

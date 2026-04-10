@@ -1,7 +1,7 @@
 # [SYSTEM_CONTEXT_RAVIUS_PATTERN]
 **Role:** Senior Front-end Architect.
 **Objective:** Maintain, expand, and debug the Ravius Landing Page Template.
-**Tech Stack:** React 18+, TypeScript (Strict), Vite, Tailwind CSS, Lenis (Smooth Scroll), React Query, Lucide React (Icons).
+**Tech Stack:** React 18+, TypeScript (Strict), Vite, Tailwind CSS, Lenis (Smooth Scroll), React Query, Lucide React (Icons), Sonner (Toasts).
 
 ## 1. ARCHITECTURE: THE 4 ISOLATED LAYERS
 The project strictly follows a 4-layer separation of concerns. **Never mix responsibilities.**
@@ -17,23 +17,37 @@ The project strictly follows a 4-layer separation of concerns. **Never mix respo
 * **Role:** Math, DOM observation, and browser APIs.
 * **Rule:** Pure logic. Hooks return primitive states (`boolean`, `number`) or Refs. They DO NOT render JSX or inject CSS directly.
 * **Key Hooks:**
-    * `useParallax(speed)`: Uses `requestAnimationFrame` for scroll tracking.
-    * `useScrollReveal(threshold)`: Uses `IntersectionObserver` for viewport entry.
+    * `useParallax(configOrSpeed)`: Accepts `number` or `ParallaxConfig { speed, direction, disabled }`. Returns `{ ref, offset, progress, direction }`. Uses `requestAnimationFrame` + `resize` listener with stable `useCallback`. GPU-accelerated via component wrappers.
+    * `useScrollReveal(threshold)`: Uses `IntersectionObserver` for viewport entry. Returns `{ ref, isVisible }`. Triggers once then calls `unobserve`.
     * `useSmoothScroll()`: Lenis implementation for anchor routing.
 
 ### 1.3 Style Layer (`src/index.css` & Tailwind)
 * **Role:** Design System global state.
 * **Rule:** No arbitrary values in Tailwind classes (e.g., avoid `text-[15px]`). Use design tokens.
 * **Tokens:** Defined as HSL variables (`--primary`, `--background`).
-* **Glassmorphism:** Use pre-defined utility classes (`glass-subtle`, `glass-strong`) instead of writing manual backdrop-blurs in components.
+* **Glassmorphism:** Use pre-defined utility classes (`glass-subtle`, `glass-strong`, `glass-glow`) instead of writing manual backdrop-blurs in components.
+* **Animations:** `marquee` (30s, left-to-right) and `marquee-reverse` (35s, right-to-left) defined in `tailwind.config.ts`.
+* **Note:** Scroll reveal transitions are handled inline by `RevealBlock`, NOT via CSS classes. The old `reveal-hidden`/`reveal-visible` classes have been removed.
 
 ### 1.4 Structure Layer (`src/components/`)
 * **Role:** Dumb rendering blocks.
 * **Rule:** Components merge Data (Props), Style (Tailwind), and Logic (Hooks). They do not mutate data or handle complex state locally unless it's pure UI state (e.g., accordion open/close).
-* **Content Block Components** (1:1 map to `ContentBlockConfig.type`):
-  `ContentBlock` (image) · `VideoContentBlock` · `FeaturesContentBlock` · `FAQContentBlock` · `TestimonialsContentBlock` · `LogoBarContentBlock` · `ProcessContentBlock` · `TeamContentBlock` · `StatsContentBlock`
-* **Utility Components:** `BackgroundGif` (animated background layer, reads defaults from `siteConfig.backgroundGif`), `Navbar`, `Hero`, `ExperiencesGrid`, `ContactForm`, `Footer`.
+
+#### Core Wrapper Components (`src/components/core/`)
+* `RevealBlock`: Encapsulates `useScrollReveal` hook. Provides `opacity + translateY` transition with configurable `delay` prop for stagger/cascade effects. **All scroll-reveal animations must use this component** instead of calling `useScrollReveal` directly.
+
+#### Parallax Infrastructure Components
+* `ParallaxLayer`: Encapsulates `useParallax` hook. Wraps children with GPU-accelerated `translate3d(0, ${offset}px, 0)` + `willChange: "transform"`. Props: `speed`, `children`, `className`, `disabled`.
+* `ParallaxRevealImage`: Premium reveal effect using `clipPath` expanding from center + scale reduction + `ParallaxLayer` for depth. GPU-layered with `translateZ(0)`.
+
+#### Content Block Components (1:1 map to `ContentBlockConfig.type`)
+`ContentBlock` (image) · `VideoContentBlock` · `FeaturesContentBlock` · `FAQContentBlock` · `TestimonialsContentBlock` · `LogoBarContentBlock` · `ProcessContentBlock` · `TeamContentBlock` · `StatsContentBlock`
+
+#### Utility Components
+`BackgroundGif` (animated background layer, reads defaults from `siteConfig.backgroundGif`), `Navbar`, `Hero`, `ExperiencesGrid`, `ContactForm`, `Footer`.
+
 * **Icon Mapping:** Lucide icons are resolved at render time via a shared `iconMap: Record<string, Component>` pattern. Icon names in `siteConfig` are strings (e.g., `"Rocket"`) matched to imports.
+* **Form Validation:** `ContactForm` uses native manual validation (no external libraries). Zod was removed during cleanup.
 
 ---
 
@@ -47,11 +61,17 @@ The project strictly follows a 4-layer separation of concerns. **Never mix respo
 When expanding the layout, execute precisely in this order:
 1.  **Config:** Add new type literal to the Union and create its interface extending `BaseBlock` in `siteConfig.ts`.
 2.  **Data:** Add example block entry to `siteConfig.contentBlocks[]`.
-3.  **Component:** Create `<Type>ContentBlock.tsx` in `/components`. Use `useScrollReveal` for Motion UX, `glass-subtle`/`glass-strong` for styling.
+3.  **Component:** Create `<Type>ContentBlock.tsx` in `/components`. Use `<RevealBlock>` for Motion UX (with `delay` for stagger in lists), `<ParallaxLayer>` for depth effects, `glass-subtle`/`glass-strong` for styling.
 4.  **Orchestration:** Add `case` to `renderBlock()` switch in `src/pages/Index.tsx`.
 
-### 2.3 Debugging Performance/UI
-* **Scroll/Jank issues:** Check `/hooks` first. Ensure `requestAnimationFrame` is properly cancelled on unmount.
+### 2.3 Adding Motion/Parallax Effects
+* **Scroll Reveal:** Wrap elements with `<RevealBlock delay={index * 100}>`. Never call `useScrollReveal` directly in content components.
+* **Parallax Depth (backgrounds):** Wrap decorative elements with `<ParallaxLayer speed={0.15}>`. Use negative speeds for counter-scroll.
+* **Parallax Depth (images):** Use `<ParallaxRevealImage src={url} speed={0.2}>` for premium clip-path + scale reveals.
+* **Marquee:** Use `animate-marquee` / `animate-marquee-reverse` Tailwind classes for infinite horizontal scroll.
+
+### 2.4 Debugging Performance/UI
+* **Scroll/Jank issues:** Check `/hooks` first. Ensure `requestAnimationFrame` is properly cancelled on unmount. Verify `willChange` is applied via `ParallaxLayer`.
 * **Hydration/State issues:** Check if React Query or context is out of sync.
 * **Responsiveness:** Use `useIsMobile()` hook for logic branching, and Tailwind `md:`, `lg:` for style branching.
 
@@ -64,10 +84,11 @@ As the framework evolves, the documentation MUST evolve autonomously to maintain
 **If you (the AI) are asked to introduce a new global pattern, API, or core hook, you MUST execute the following Meta-Documentation routine:**
 
 1.  **Identify Global Impact:** Does this change affect how data is passed, how animations are handled, or how styling is applied globally?
-2.  **Update `AI_CONTEXT.md` (This file):**
-    * If a new hook is added (e.g., `useAnalyticsTracker`), append it to section `1.2 Logic Layer`.
+2.  **Update `BASE-CONTEXT.md` (This file):**
+    * If a new hook is added, append it to section `1.2 Logic Layer`.
     * If a new external library is added to the stack, update the `Tech Stack` header.
-    * If a new structural pattern is introduced (e.g., Context API for Global Theme), create a new sub-section under `ARCHITECTURAL RULES`.
+    * If a new structural pattern is introduced (e.g., wrapper components), document in section `1.4 Structure Layer`.
+    * If a new workflow is introduced, add to section `2. EXECUTION WORKFLOWS`.
 3.  **Self-Correction:** Ensure the markdown remains highly compressed. Remove outdated examples. Use code snippets only when abstract explanation is insufficient.
 
 **CRITICAL DIRECTIVE:** You are forbidden from degrading the modularity of this system. If a user asks for a "quick fix" that involves hardcoding a string into a component or bypassing a hook, you MUST warn the user about the architectural violation before proceeding, or offer the Config-Driven alternative first.
