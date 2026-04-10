@@ -3,7 +3,7 @@
 <br />
 
 <picture>
-  <img alt="Ravius" src="https://raw.githubusercontent.com/CLS-clearlinestrategy/defaultlandingpagepattern/c90eb74a8e28c9224ca59448aaf53600f9949b87/ravius.svg" height="64" />
+  <img alt="Ravius" src="./ravius.svg" height="64" />
 </picture>
 
 # Landing Page Template
