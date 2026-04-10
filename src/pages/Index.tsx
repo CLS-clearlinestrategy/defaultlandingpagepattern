@@ -1,20 +1,20 @@
 import { siteConfig, ContentBlockConfig } from "@/config/siteConfig";
 import { useSmoothScroll } from "@/hooks/useSmoothScroll";
 import { useHeroVisibility } from "@/hooks/useHeroVisibility";
-import Navbar from "@/components/Navbar";
-import Hero from "@/components/Hero";
-import ContentBlock from "@/components/ContentBlock";
-import VideoContentBlock from "@/components/VideoContentBlock";
-import FeaturesContentBlock from "@/components/FeaturesContentBlock";
-import FAQContentBlock from "@/components/FAQContentBlock";
-import TestimonialsContentBlock from "@/components/TestimonialsContentBlock";
-import LogoBarContentBlock from "@/components/LogoBarContentBlock";
-import ProcessContentBlock from "@/components/ProcessContentBlock";
-import TeamContentBlock from "@/components/TeamContentBlock";
-import StatsContentBlock from "@/components/StatsContentBlock";
-import ExperiencesGrid from "@/components/ExperiencesGrid";
-import ContactForm from "@/components/ContactForm";
-import Footer from "@/components/Footer";
+import Navbar from "@/components/layout/Navbar";
+import Hero from "@/sections/Hero";
+import ContentBlock from "@/sections/ContentBlock";
+import VideoContentBlock from "@/sections/VideoContentBlock";
+import FeaturesContentBlock from "@/sections/FeaturesContentBlock";
+import FAQContentBlock from "@/sections/FAQContentBlock";
+import TestimonialsContentBlock from "@/sections/TestimonialsContentBlock";
+import LogoBarContentBlock from "@/sections/LogoBarContentBlock";
+import ProcessContentBlock from "@/sections/ProcessContentBlock";
+import TeamContentBlock from "@/sections/TeamContentBlock";
+import StatsContentBlock from "@/sections/StatsContentBlock";
+import ExperiencesGrid from "@/sections/ExperiencesGrid";
+import ContactForm from "@/sections/ContactForm";
+import Footer from "@/components/layout/Footer";
 
 const renderBlock = (block: ContentBlockConfig) => {
   switch (block.type) {

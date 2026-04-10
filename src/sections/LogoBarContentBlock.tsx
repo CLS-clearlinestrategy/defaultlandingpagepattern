@@ -1,5 +1,5 @@
 import { LogoBarBlockConfig } from "@/config/siteConfig";
-import RevealBlock from "./core/RevealBlock";
+import RevealBlock from "@/components/core/RevealBlock";
 import { useParallax } from "@/hooks/useParallax";
 
 interface LogoBarContentBlockProps {

@@ -1,6 +1,6 @@
 import { ProcessBlockConfig } from "@/config/siteConfig";
-import RevealBlock from "./core/RevealBlock";
-import ParallaxLayer from "./ParallaxLayer";
+import RevealBlock from "@/components/core/RevealBlock";
+import ParallaxLayer from "@/components/core/ParallaxLayer";
 import {
   Zap, Layers, Shield, Sparkles, Rocket, Palette,
   Code2, BarChart3, Globe, Lock, MessageSquare, PenTool,

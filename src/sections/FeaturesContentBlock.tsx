@@ -1,5 +1,5 @@
 import { FeaturesBlockConfig } from "@/config/siteConfig";
-import RevealBlock from "./core/RevealBlock";
+import RevealBlock from "@/components/core/RevealBlock";
 import {
   Zap, Layers, Shield, Sparkles, Rocket, Palette,
   Code2, BarChart3, Globe, Lock,

@@ -1,38 +1,23 @@
-**Objetivo:** Garantir que o hook base retorna o estado `isVisible` limpo usando o `IntersectionObserver`.
+Atuando como Senior Front-end Architect do ecossistema Ravius, precisamos refatorar a estrutura de pastas do nosso front-end para melhorar a escalabilidade e o isolamento arquitetural. A pasta `src/components/` atual está misturando componentes primitivos com seções inteiras de página.
 
-```text
-Atuando como Senior Front-end Architect, vamos refatorar nosso sistema de animação de entrada (Scroll Reveal) para utilizar uma abordagem baseada em componentes, alinhada com as refatorações recentes.
+Execute a seguinte refatoração de forma cirúrgica:
 
-1. Atualize o arquivo `src/hooks/useScrollReveal.ts`.
-- O hook agora deve receber um `threshold` (com padrão 0.15).
-- Deve utilizar o `IntersectionObserver` para alterar um estado interno `isVisible` para `true` quando o elemento entrar na tela, e então dar `unobserve` (para animar apenas uma vez).
-- O hook deve retornar exatamente o objeto: `{ ref, isVisible }`.
-```
-**Objetivo:** Criar o componente estrutural que encapsula o hook e aplica as transições CSS fluidas.
+1. Criação de Nova Estrutura de Diretórios:
+- Crie o diretório `src/sections/` (na raiz do src, FORA de components). Esta pasta abrigará exclusivamente os blocos massivos de conteúdo/layout da página.
+- Crie o diretório `src/components/core/`. Esta pasta abrigará nossos componentes reutilizáveis, primitivos e abstrações de lógica visual.
+- Crie o diretório `src/components/layout/`. Esta pasta abrigará os elementos estruturais globais.
 
-```text
-Atuando como Senior Front-end Architect, vamos criar o componente wrapper que vai gerir a lógica visual do scroll reveal, mantendo nossos componentes de seção puros.
+2. Migração Estrita de Arquivos:
+- Mova para `src/sections/`: `Hero.tsx`, `ContentBlock.tsx`, `VideoContentBlock.tsx`, `FeaturesContentBlock.tsx`, `ExperiencesGrid.tsx`, `ContactForm.tsx`, e qualquer outra seção recém-criada (como `FAQContentBlock.tsx`, `TeamContentBlock.tsx`, `LogoBarContentBlock.tsx`, `ProcessContentBlock.tsx`, `StatsContentBlock.tsx`, `TestimonialsContentBlock.tsx`).
+- Mova para `src/components/core/`: Componentes como `ParallaxLayer.tsx`, `ParallaxRevealImage.tsx`, `BackgroundGif.tsx`, `RevealBlock.tsx` e `NavLink.tsx`.
+- Mova para `src/components/layout/`: `Navbar.tsx` e `Footer.tsx`.
+- (A pasta `src/components/ui/` pertencente ao Shadcn deve permanecer intacta).
 
-1. Crie o arquivo `src/components/core/RevealBlock.tsx` (garanta que está na pasta `core/`).
-- Importe o hook `useScrollReveal` atualizado.
-- O componente deve aceitar as props: `children` (ReactNode), `className` (string, opcional) e `delay` (number, padrão 0).
-- Chame o hook: `const { ref, isVisible } = useScrollReveal();`
-- Renderize uma `<div>` que receba a `ref`.
-- Na prop `className`, combine as classes passadas com transições do Tailwind: `transition-all duration-1000 ease-out ${className}`.
-- Na prop `style` (inline), aplique o dinamismo visual:
-  - `opacity: isVisible ? 1 : 0`
-  - `transform: isVisible ? "translateY(0)" : "translateY(40px)"`
-  - `transitionDelay: \`${delay}ms\``
-```
-**Objetivo:** Substituir as chamadas manuais do hook dentro das seções da landing page pelo novo componente `<RevealBlock>`.
-```text
-Atuando como Senior Front-end Architect, agora vamos aplicar o novo `<RevealBlock>` nas nossas seções, limpando o excesso de hooks nos arquivos de layout.
+3. Refatoração de Imports:
+- Faça um find & replace cuidadoso em todo o projeto para corrigir os caminhos de importação.
+- Preste atenção especial ao arquivo Orquestrador `src/pages/Index.tsx`. Ele agora deve importar os blocos renderizáveis a partir de `@/sections/...` e os elementos estruturais de `@/components/layout/...`.
+- Atualize os imports dentro dos próprios arquivos movidos (ex: um arquivo em `src/sections/` que importa algo de `src/components/core/`).
 
-1. Vá para os componentes na pasta `src/components/sections/` que atualmente usam o hook `useScrollReveal` manualmente (como `FeaturesContentBlock.tsx`, `ExperiencesGrid.tsx`, `FAQContentBlock.tsx`, etc.).
-2. Para cada um desses arquivos:
-- Remova a importação do hook `useScrollReveal` e as declarações como `const ref = useScrollReveal()`.
-- Importe o novo componente: `import { RevealBlock } from "@/components/core/RevealBlock";`
-- Envolva os elementos que precisam ser animados com o `<RevealBlock>`.
-- Caso esteja renderizando listas (usando `.map`), como nos cards de *Features* ou *Equipe*, envolva o card com o `<RevealBlock delay={index * 100}>` para criar aquele efeito elegante de cascata/stagger.
-- Remova quaisquer classes antigas relacionadas a `reveal-hidden` ou `reveal-visible` caso existam nos `className` originais, pois o `RevealBlock` já cuida da opacidade e translação.
-```
+4. Atualização da Meta-Documentação:
+- Atualize os arquivos `README.md` e `ai/BASE-CONTEXT.md` na seção que descreve a "Camada de Estrutura".
+- Documente explicitamente a nova regra: "Componentes primitivos e abstrações visuais vivem em `src/components/core/`. Blocos de conteúdo orquestrados via siteConfig vivem em `src/sections/`".

@@ -1,6 +1,6 @@
 import { StatsBlockConfig } from "@/config/siteConfig";
-import RevealBlock from "./core/RevealBlock";
-import ParallaxLayer from "./ParallaxLayer";
+import RevealBlock from "@/components/core/RevealBlock";
+import ParallaxLayer from "@/components/core/ParallaxLayer";
 
 interface StatsContentBlockProps {
   data: StatsBlockConfig;

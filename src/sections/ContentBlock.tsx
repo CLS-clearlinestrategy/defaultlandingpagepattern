@@ -1,5 +1,5 @@
 import { ImageBlockConfig } from "@/config/siteConfig";
-import RevealBlock from "./core/RevealBlock";
+import RevealBlock from "@/components/core/RevealBlock";
 import { Check } from "lucide-react";
 
 interface ContentBlockProps {

@@ -1,6 +1,6 @@
 import { FAQBlockConfig } from "@/config/siteConfig";
 import { useState } from "react";
-import RevealBlock from "./core/RevealBlock";
+import RevealBlock from "@/components/core/RevealBlock";
 
 interface FAQContentBlockProps {
   data: FAQBlockConfig;

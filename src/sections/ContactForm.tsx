@@ -1,6 +1,6 @@
 import { useReducer } from "react";
 import { siteConfig } from "@/config/siteConfig";
-import RevealBlock from "./core/RevealBlock";
+import RevealBlock from "@/components/core/RevealBlock";
 import { toast } from "sonner";
 import { Send } from "lucide-react";
 

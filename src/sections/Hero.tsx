@@ -1,7 +1,7 @@
 import { siteConfig } from "@/config/siteConfig";
 import { useParallax } from "@/hooks/useParallax";
-import RevealBlock from "./core/RevealBlock";
-import { BackgroundGif } from "./BackgroundGif";
+import RevealBlock from "@/components/core/RevealBlock";
+import { BackgroundGif } from "@/components/core/BackgroundGif";
 
 const Hero = () => {
   const { hero } = siteConfig;

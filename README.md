@@ -117,16 +117,21 @@ landing-page-template/
 │   │   └── use-toast.ts          # Gerenciamento de estado de toasts
 │   │
 │   ├── components/
-│   │   ├── core/                 # Wrappers de infraestrutura (não editados diretamente)
-│   │   │   └── RevealBlock.tsx   # Encapsula useScrollReveal — todas as animações de entrada
+│   │   ├── core/                 # 🔧 Primitivos reutilizáveis e abstrações visuais
+│   │   │   ├── RevealBlock.tsx   # Encapsula useScrollReveal — animações de entrada
+│   │   │   ├── ParallaxLayer.tsx # Wrapper GPU-accelerated para profundidade
+│   │   │   ├── ParallaxRevealImage.tsx # Efeito premium: clipPath + scale + parallax
+│   │   │   ├── BackgroundGif.tsx # Fundo animado configurável (gif + overlay + blur)
+│   │   │   └── NavLink.tsx       # Wrapper tipado do NavLink do React Router
 │   │   │
-│   │   ├── ParallaxLayer.tsx     # Wrapper GPU-accelerated para efeitos de profundidade
-│   │   ├── ParallaxRevealImage.tsx # Efeito premium: clipPath + scale + parallax
-│   │   ├── BackgroundGif.tsx     # Fundo animado configurável (gif + overlay + blur)
+│   │   ├── layout/               # 🏗️ Elementos estruturais globais
+│   │   │   ├── Navbar.tsx        # Navbar responsiva (transparente → glass no scroll)
+│   │   │   └── Footer.tsx        # Rodapé com redes sociais configuráveis
 │   │   │
-│   │   ├── Hero.tsx              # 🔴 Seção hero com parallax em camadas decorativas
-│   │   ├── Navbar.tsx            # Navbar responsiva (transparente → glass no scroll)
-│   │   ├── Footer.tsx            # Rodapé com redes sociais configuráveis
+│   │   └── ui/                   # Primitivos shadcn/ui (não editar diretamente)
+│   │
+│   ├── sections/                 # 🔴 Blocos de conteúdo orquestrados via siteConfig
+│   │   ├── Hero.tsx              # Seção hero com parallax em camadas decorativas
 │   │   ├── ContentBlock.tsx      # Bloco imagem + texto (type: "image")
 │   │   ├── VideoContentBlock.tsx # Bloco vídeo + texto (type: "video")
 │   │   ├── FeaturesContentBlock.tsx # Grid de features (type: "features")
@@ -137,8 +142,7 @@ landing-page-template/
 │   │   ├── TeamContentBlock.tsx  # Grid de membros da equipe (type: "team")
 │   │   ├── StatsContentBlock.tsx # Grid de estatísticas (type: "stats")
 │   │   ├── ExperiencesGrid.tsx   # Grid de cards de experiências/diferenciais
-│   │   ├── ContactForm.tsx       # Formulário com useReducer + validação nativa + Sonner
-│   │   └── NavLink.tsx           # Wrapper tipado do NavLink do React Router
+│   │   └── ContactForm.tsx       # Formulário com useReducer + validação nativa + Sonner
 │   │
 │   ├── pages/
 │   │   ├── Index.tsx             # Orquestrador — monta e ordena todas as seções
@@ -329,21 +333,25 @@ Possui valores padrões que podem ser sobrescritos. Pode ser utilizado em divers
 
 ---
 
-### 🔴 Camada de Estrutura — `src/components/` e `src/pages/`
+### 🔴 Camada de Estrutura — 3 diretórios isolados
 
 **O esqueleto que monta as peças.**
 
-Componentes são "burros": recebem dados via props, aplicam estilos via Tailwind e delegam lógica para os hooks. Não fazem fetch, não mutam estado global e não calculam animações diretamente.
+A camada de estrutura separa componentes em três diretórios físicos com responsabilidades distintas:
 
-#### Componentes de Infraestrutura
+> **Regra:** Componentes primitivos e abstrações visuais vivem em `src/components/core/`. Blocos de conteúdo orquestrados via siteConfig vivem em `src/sections/`. Elementos estruturais globais vivem em `src/components/layout/`.
 
-Wrappers que encapsulam hooks, mantendo os componentes de conteúdo limpos:
+#### `src/components/core/` — Primitivos reutilizáveis
+
+Wrappers que encapsulam hooks, mantendo os blocos de conteúdo limpos:
 
 | Componente | Papel | Props principais |
 |---|---|---|
 | `RevealBlock` | Animação de entrada no scroll (opacity + translateY) | `children`, `className`, `delay` |
 | `ParallaxLayer` | Profundidade 3D via `translate3d` GPU-accelerated | `speed`, `children`, `className`, `disabled` |
 | `ParallaxRevealImage` | Reveal premium com `clipPath` + scale + parallax | `src`, `alt`, `speed`, `className` |
+| `BackgroundGif` | Fundo animado avec overlay e blur | `gifUrl`, `overlayColor`, `blur` |
+| `NavLink` | Wrapper tipado do React Router NavLink | `to`, `className`, `activeClassName` |
 
 **Padrão de uso — `RevealBlock` com stagger:**
 
@@ -367,9 +375,16 @@ Wrappers que encapsulam hooks, mantendo os componentes de conteúdo limpos:
 </ParallaxLayer>
 ```
 
-#### Componentes de Conteúdo (1:1 com `ContentBlockConfig.type`)
+#### `src/components/layout/` — Estrutura global
 
-| Componente | Tipo | Descrição |
+| Componente | Descrição |
+|---|---|
+| `Navbar` | Navegação fixa — transparente → `glass-strong` no scroll |
+| `Footer` | Rodapé com ícones sociais configuráveis |
+
+#### `src/sections/` — Blocos de conteúdo (1:1 com `ContentBlockConfig.type`)
+
+| Seção | Tipo | Descrição |
 |---|---|---|
 | `ContentBlock` | `image` | Imagem + texto com lista de checkmarks |
 | `VideoContentBlock` | `video` | YouTube/Vimeo/mp4 + texto |
@@ -380,13 +395,21 @@ Wrappers que encapsulam hooks, mantendo os componentes de conteúdo limpos:
 | `ProcessContentBlock` | `process` | Timeline alternada com ícones |
 | `TeamContentBlock` | `team` | Grid de membros com avatar flutuante |
 | `StatsContentBlock` | `stats` | Grid de números com gradiente |
+| `Hero` | — | Seção hero com parallax em camadas |
+| `ExperiencesGrid` | — | Grid de cards de diferenciais |
+| `ContactForm` | — | Formulário com validação nativa + Sonner |
 
 #### `Index.tsx` — O Orquestrador
 
-A página principal importa o `siteConfig`, itera os blocos e despacha cada um para o componente correto. É o único lugar onde a composição e a ordem das seções são decididas.
+A página principal importa seções de `@/sections/` e layout de `@/components/layout/`. É o único lugar onde a composição e a ordem das seções são decididas.
 
 ```tsx
 // src/pages/Index.tsx
+
+import Navbar from "@/components/layout/Navbar"
+import Hero from "@/sections/Hero"
+import ContentBlock from "@/sections/ContentBlock"
+import Footer from "@/components/layout/Footer"
 
 const renderBlock = (block: ContentBlockConfig) => {
   switch (block.type) {
@@ -400,24 +423,6 @@ const renderBlock = (block: ContentBlockConfig) => {
     case "team":         return <TeamContentBlock        key={block.id} data={block} />
     case "stats":        return <StatsContentBlock       key={block.id} data={block} />
   }
-}
-
-const Index = () => {
-  useSmoothScroll()
-  const { heroRef, isHeroVisible } = useHeroVisibility()
-
-  return (
-    <div className="min-h-screen bg-background text-foreground">
-      <Navbar isHeroVisible={isHeroVisible} />
-      <div ref={heroRef as React.RefObject<HTMLDivElement>}>
-        <Hero />
-      </div>
-      {siteConfig.contentBlocks.map(renderBlock)}
-      <ExperiencesGrid />
-      <ContactForm />
-      <Footer />
-    </div>
-  )
 }
 ```
 
@@ -498,13 +503,13 @@ export type ContentBlockConfig =
 }
 ```
 
-**3. Crie o componente usando os wrappers de infraestrutura:**
+**3. Crie a seção em `src/sections/` usando os primitivos de `core/`:**
 
 ```tsx
-// src/components/PricingContentBlock.tsx
+// src/sections/PricingContentBlock.tsx
 
 import { PricingBlockConfig } from "@/config/siteConfig"
-import RevealBlock from "./core/RevealBlock"
+import RevealBlock from "@/components/core/RevealBlock"
 
 const PricingContentBlock = ({ data }: { data: PricingBlockConfig }) => {
   return (
@@ -568,8 +573,10 @@ case "pricing": return <PricingContentBlock key={block.id} data={block} />
 | Todo texto e URL vêm do `siteConfig.ts` | Hardcodar strings em qualquer `.tsx` |
 | Lógica de DOM e scroll ficam em hooks | `useEffect` com `document.querySelector` em componentes |
 | Use as classes glassmorphism globais | Escrever `backdrop-filter` inline em componentes |
-| Use `<RevealBlock>` para animações de entrada | Chamar `useScrollReveal` direto em componentes de conteúdo |
-| Use `<ParallaxLayer>` para efeitos de profundidade | Estilos `transform` inline com `useParallax` em componentes |
+| Use `<RevealBlock>` para animações de entrada | Chamar `useScrollReveal` direto em seções |
+| Use `<ParallaxLayer>` para efeitos de profundidade | Estilos `transform` inline com `useParallax` em seções |
+| Seções importam de `@/components/core/` | Colocar seções de página em `src/components/` |
+| Layout (`Navbar`, `Footer`) vive em `components/layout/` | Misturar layout com seções ou primitivos |
 | Props tipadas a partir do `siteConfig.ts` | Redefinir interfaces que já existem na camada de dados |
 | `cancelAnimationFrame` no cleanup de hooks | Loops de `rAF` sem limpeza no unmount |
 | "Quick fix" que introduz texto hardcoded? Avise o time antes | Aceitar dívida técnica silenciosamente |

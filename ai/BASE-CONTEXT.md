@@ -29,25 +29,25 @@ The project strictly follows a 4-layer separation of concerns. **Never mix respo
 * **Animations:** `marquee` (30s, left-to-right) and `marquee-reverse` (35s, right-to-left) defined in `tailwind.config.ts`.
 * **Note:** Scroll reveal transitions are handled inline by `RevealBlock`, NOT via CSS classes. The old `reveal-hidden`/`reveal-visible` classes have been removed.
 
-### 1.4 Structure Layer (`src/components/`)
-* **Role:** Dumb rendering blocks.
-* **Rule:** Components merge Data (Props), Style (Tailwind), and Logic (Hooks). They do not mutate data or handle complex state locally unless it's pure UI state (e.g., accordion open/close).
+### 1.4 Structure Layer (3 directories)
+The project separates rendering into three physically isolated directories. **Componentes primitivos e abstrações visuais vivem em `src/components/core/`. Blocos de conteúdo orquestrados via siteConfig vivem em `src/sections/`. Elementos estruturais globais vivem em `src/components/layout/`.**
 
-#### Core Wrapper Components (`src/components/core/`)
-* `RevealBlock`: Encapsulates `useScrollReveal` hook. Provides `opacity + translateY` transition with configurable `delay` prop for stagger/cascade effects. **All scroll-reveal animations must use this component** instead of calling `useScrollReveal` directly.
+#### `src/components/core/` — Primitivos reutilizáveis
+* `RevealBlock`: Encapsulates `useScrollReveal`. `opacity + translateY` transition with `delay` prop for stagger. **All scroll-reveal animations must use this component.**
+* `ParallaxLayer`: Encapsulates `useParallax`. GPU-accelerated `translate3d` + `willChange: "transform"`. Props: `speed`, `children`, `className`, `disabled`.
+* `ParallaxRevealImage`: Premium `clipPath` + scale + `ParallaxLayer` reveal. GPU-layered.
+* `BackgroundGif`: Animated background layer, reads defaults from `siteConfig.backgroundGif`.
+* `NavLink`: Typed wrapper for React Router's NavLink.
 
-#### Parallax Infrastructure Components
-* `ParallaxLayer`: Encapsulates `useParallax` hook. Wraps children with GPU-accelerated `translate3d(0, ${offset}px, 0)` + `willChange: "transform"`. Props: `speed`, `children`, `className`, `disabled`.
-* `ParallaxRevealImage`: Premium reveal effect using `clipPath` expanding from center + scale reduction + `ParallaxLayer` for depth. GPU-layered with `translateZ(0)`.
+#### `src/components/layout/` — Estrutura global
+* `Navbar`: Fixed navigation, transparent → glass on scroll.
+* `Footer`: Site footer with configurable social icons.
 
-#### Content Block Components (1:1 map to `ContentBlockConfig.type`)
-`ContentBlock` (image) · `VideoContentBlock` · `FeaturesContentBlock` · `FAQContentBlock` · `TestimonialsContentBlock` · `LogoBarContentBlock` · `ProcessContentBlock` · `TeamContentBlock` · `StatsContentBlock`
+#### `src/sections/` — Blocos de conteúdo (1:1 map to `ContentBlockConfig.type`)
+`ContentBlock` (image) · `VideoContentBlock` · `FeaturesContentBlock` · `FAQContentBlock` · `TestimonialsContentBlock` · `LogoBarContentBlock` · `ProcessContentBlock` · `TeamContentBlock` · `StatsContentBlock` · `Hero` · `ExperiencesGrid` · `ContactForm`
 
-#### Utility Components
-`BackgroundGif` (animated background layer, reads defaults from `siteConfig.backgroundGif`), `Navbar`, `Hero`, `ExperiencesGrid`, `ContactForm`, `Footer`.
-
-* **Icon Mapping:** Lucide icons are resolved at render time via a shared `iconMap: Record<string, Component>` pattern. Icon names in `siteConfig` are strings (e.g., `"Rocket"`) matched to imports.
-* **Form Validation:** `ContactForm` uses native manual validation (no external libraries). Zod was removed during cleanup.
+* **Icon Mapping:** Lucide icons resolved via shared `iconMap: Record<string, Component>` pattern.
+* **Form Validation:** `ContactForm` uses native manual validation (no external libraries).
 
 ---
 
@@ -61,8 +61,8 @@ The project strictly follows a 4-layer separation of concerns. **Never mix respo
 When expanding the layout, execute precisely in this order:
 1.  **Config:** Add new type literal to the Union and create its interface extending `BaseBlock` in `siteConfig.ts`.
 2.  **Data:** Add example block entry to `siteConfig.contentBlocks[]`.
-3.  **Component:** Create `<Type>ContentBlock.tsx` in `/components`. Use `<RevealBlock>` for Motion UX (with `delay` for stagger in lists), `<ParallaxLayer>` for depth effects, `glass-subtle`/`glass-strong` for styling.
-4.  **Orchestration:** Add `case` to `renderBlock()` switch in `src/pages/Index.tsx`.
+3.  **Section:** Create `<Type>ContentBlock.tsx` in `src/sections/`. Import core components via `@/components/core/`. Use `<RevealBlock>` for Motion UX, `<ParallaxLayer>` for depth, `glass-subtle`/`glass-strong` for styling.
+4.  **Orchestration:** Add `case` to `renderBlock()` switch in `src/pages/Index.tsx`. Import from `@/sections/`.
 
 ### 2.3 Adding Motion/Parallax Effects
 * **Scroll Reveal:** Wrap elements with `<RevealBlock delay={index * 100}>`. Never call `useScrollReveal` directly in content components.
