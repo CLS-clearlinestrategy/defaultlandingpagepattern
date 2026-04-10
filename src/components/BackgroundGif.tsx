@@ -1,6 +1,6 @@
 import { cn } from '@/lib/utils';
-
 import React from 'react';
+import { siteConfig } from '@/config/siteConfig';
 
 export interface BackgroundGifProps {
   gifUrl?: string;
@@ -11,9 +11,9 @@ export interface BackgroundGifProps {
 }
 
 export function BackgroundGif({
-  gifUrl = "https://media2.giphy.com/media/v1.Y2lkPTc5MGI3NjExbmpxcXoxN252N3R2MzZzaTRvcGJzNHY5MDJ2aXNzM3hranRtdXI0dSZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/3BZHlKZbrJwL0buDOc/giphy.gif",
-  overlayColor = "bg-black/80", 
-  blur = "blur-3xl",
+  gifUrl = siteConfig.backgroundGif.gifUrl,
+  overlayColor = siteConfig.backgroundGif.overlayColor, 
+  blur = siteConfig.backgroundGif.blur,
   className,
   children
 }: BackgroundGifProps) {

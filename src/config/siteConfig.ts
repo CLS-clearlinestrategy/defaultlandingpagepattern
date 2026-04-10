@@ -21,6 +21,12 @@ export interface ParallaxLayer {
   className?: string;
 }
 
+export interface BackgroundGifConfig {
+  gifUrl: string;
+  overlayColor: string;
+  blur: string;
+}
+
 /* ── Content Block Discriminated Union ── */
 
 interface BaseBlock {
@@ -111,6 +117,7 @@ export interface SiteConfig {
     tagline: string;
     socials: SocialLink[];
   };
+  backgroundGif: BackgroundGifConfig;
 }
 
 export const siteConfig: SiteConfig = {
@@ -123,6 +130,12 @@ export const siteConfig: SiteConfig = {
     { label: "Experiências", href: "#experiences" },
     { label: "Contato", href: "#contact" },
   ],
+
+  backgroundGif: {
+    gifUrl: "https://media2.giphy.com/media/v1.Y2lkPTc5MGI3NjExbmpxcXoxN252N3R2MzZzaTRvcGJzNHY5MDJ2aXNzM3hranRtdXI0dSZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/3BZHlKZbrJwL0buDOc/giphy.gif",
+    overlayColor: "bg-black/80",
+    blur: "blur-3xl",
+  },
 
   hero: {
     badge: "Novo — v2.0 disponível",

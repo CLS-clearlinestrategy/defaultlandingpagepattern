@@ -309,7 +309,24 @@ As classes abaixo são gerenciadas pelo hook `useScrollReveal`. Não as aplique 
 .reveal-hidden  { opacity: 0; transform: translateY(30px); transition: ... 0.8s cubic-bezier(0.16,1,0.3,1) }
 .reveal-visible { opacity: 1; transform: translateY(0) }
 ```
+---
+#### Background animado
 
+Um dos componentes que da alma ao design padrão Ravius é o BackgroundGif.tsx, que é um componente que recebe uma url de um gif e aplica um overlay de cor sobre ele.
+
+Esse componente recebe como props:
+
+```typescript
+interface BackgroundGifProps {
+  gifUrl?: string;
+  overlayColor?: string;
+  blur?: string;
+}
+```
+Porém já tem valores padrões que podem ser sobrescritos ou não.
+O componente pode ser utilizando em diversos contextos como background de seções, cards, etc.
+
+> Fonte padrão de gifs: [Erica Of Anderson](https://giphy.com/ericaofanderson)
 ---
 
 ### 🔴 Camada de Estrutura — `src/components/` e `src/pages/`
