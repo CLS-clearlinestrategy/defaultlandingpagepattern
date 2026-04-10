@@ -1,5 +1,5 @@
 import { VideoBlockConfig } from "@/config/siteConfig";
-import { useScrollReveal } from "@/hooks/useScrollReveal";
+import RevealBlock from "./core/RevealBlock";
 import { useParallax } from "@/hooks/useParallax";
 
 interface VideoContentBlockProps {
@@ -7,7 +7,6 @@ interface VideoContentBlockProps {
 }
 
 const VideoContentBlock = ({ data }: VideoContentBlockProps) => {
-  const containerRef = useScrollReveal<HTMLDivElement>();
   const { ref: parallaxRef, offset } = useParallax(0.06);
   const isLeft = (data.videoPosition ?? "left") === "left";
 
@@ -15,8 +14,7 @@ const VideoContentBlock = ({ data }: VideoContentBlockProps) => {
 
   return (
     <section id={data.id} className="py-20 md:py-28">
-      <div
-        ref={containerRef}
+      <RevealBlock
         className={`container mx-auto px-6 flex flex-col ${
           isLeft ? "md:flex-row" : "md:flex-row-reverse"
         } items-center gap-12 md:gap-16`}
@@ -62,7 +60,7 @@ const VideoContentBlock = ({ data }: VideoContentBlockProps) => {
             </p>
           )}
         </div>
-      </div>
+      </RevealBlock>
     </section>
   );
 };

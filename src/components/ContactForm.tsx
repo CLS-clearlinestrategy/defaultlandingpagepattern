@@ -1,15 +1,8 @@
 import { useReducer } from "react";
 import { siteConfig } from "@/config/siteConfig";
-import { useScrollReveal } from "@/hooks/useScrollReveal";
+import RevealBlock from "./core/RevealBlock";
 import { toast } from "sonner";
-import { z } from "zod";
 import { Send } from "lucide-react";
-
-const contactSchema = z.object({
-  name: z.string().trim().min(1, "Nome é obrigatório").max(100),
-  email: z.string().trim().email("E-mail inválido").max(255),
-  message: z.string().trim().min(1, "Mensagem é obrigatória").max(1000),
-});
 
 interface FormState {
   values: { name: string; email: string; message: string };
@@ -57,18 +50,22 @@ function formReducer(state: FormState, action: FormAction): FormState {
 const ContactForm = () => {
   const { contact } = siteConfig;
   const [state, dispatch] = useReducer(formReducer, initialState);
-  const sectionRef = useScrollReveal<HTMLDivElement>();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    const result = contactSchema.safeParse(state.values);
-    if (!result.success) {
-      const fieldErrors: FormState["errors"] = {};
-      result.error.errors.forEach((err) => {
-        const field = err.path[0] as keyof FormState["values"];
-        fieldErrors[field] = err.message;
-      });
+    const fieldErrors: FormState["errors"] = {};
+    const { name, email, message } = state.values;
+
+    if (!name.trim()) fieldErrors.name = "Nome é obrigatório";
+    if (!email.trim()) {
+      fieldErrors.email = "E-mail é obrigatório";
+    } else if (!/^\S+@\S+\.\S+$/.test(email)) {
+      fieldErrors.email = "E-mail inválido";
+    }
+    if (!message.trim()) fieldErrors.message = "Mensagem é obrigatória";
+
+    if (Object.keys(fieldErrors).length > 0) {
       dispatch({ type: "SET_ERRORS", errors: fieldErrors });
       return;
     }
@@ -86,7 +83,7 @@ const ContactForm = () => {
 
   return (
     <section id="contact" className="py-20 md:py-28">
-      <div ref={sectionRef} className="container mx-auto px-6 max-w-xl">
+      <RevealBlock className="container mx-auto px-6 max-w-xl">
         <div className="text-center mb-12">
           <h2 className="text-3xl md:text-4xl font-bold mb-3">{contact.title}</h2>
           <p className="text-muted-foreground">{contact.subtitle}</p>
@@ -144,7 +141,7 @@ const ContactForm = () => {
             )}
           </button>
         </form>
-      </div>
+      </RevealBlock>
     </section>
   );
 };

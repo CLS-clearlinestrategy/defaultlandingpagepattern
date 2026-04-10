@@ -1,12 +1,11 @@
 import { siteConfig } from "@/config/siteConfig";
 import { useParallax } from "@/hooks/useParallax";
-import { useScrollReveal } from "@/hooks/useScrollReveal";
+import RevealBlock from "./core/RevealBlock";
 import { BackgroundGif } from "./BackgroundGif";
 
 const Hero = () => {
   const { hero } = siteConfig;
   const { ref: contentRef, offset: contentOffset } = useParallax(0.12);
-  const badgeRef = useScrollReveal<HTMLSpanElement>({ threshold: 0.5 });
 
   return (
     <section
@@ -35,12 +34,11 @@ const Hero = () => {
           style={{ transform: `translateY(${contentOffset}px)` }}
           className="container mx-auto px-6 text-center relative z-10"
         >
-          <span
-            ref={badgeRef}
-            className="inline-block mb-6 px-4 py-1.5 rounded-full text-xs font-medium glass-glow text-primary"
-          >
-            {hero.badge}
-          </span>
+          <RevealBlock>
+            <span className="inline-block mb-6 px-4 py-1.5 rounded-full text-xs font-medium glass-glow text-primary">
+              {hero.badge}
+            </span>
+          </RevealBlock>
 
           <h1 className="text-4xl md:text-6xl lg:text-7xl font-extrabold leading-tight tracking-tight mb-6">
             {hero.title}{" "}

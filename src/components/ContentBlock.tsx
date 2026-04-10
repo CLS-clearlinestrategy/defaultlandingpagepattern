@@ -1,5 +1,5 @@
 import { ImageBlockConfig } from "@/config/siteConfig";
-import { useScrollReveal } from "@/hooks/useScrollReveal";
+import RevealBlock from "./core/RevealBlock";
 import { Check } from "lucide-react";
 
 interface ContentBlockProps {
@@ -7,13 +7,11 @@ interface ContentBlockProps {
 }
 
 const ContentBlock = ({ data }: ContentBlockProps) => {
-  const containerRef = useScrollReveal<HTMLDivElement>();
   const isLeft = data.imagePosition === "left";
 
   return (
     <section id={data.id} className="py-20 md:py-28">
-      <div
-        ref={containerRef}
+      <RevealBlock
         className={`container mx-auto px-6 flex flex-col ${
           isLeft ? "md:flex-row" : "md:flex-row-reverse"
         } items-center gap-12 md:gap-16`}
@@ -59,7 +57,7 @@ const ContentBlock = ({ data }: ContentBlockProps) => {
             </ul>
           )}
         </div>
-      </div>
+      </RevealBlock>
     </section>
   );
 };

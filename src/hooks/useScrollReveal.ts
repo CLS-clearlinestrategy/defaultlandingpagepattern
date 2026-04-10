@@ -1,38 +1,28 @@
-import { useEffect, useRef } from "react";
-
-interface ScrollRevealOptions {
-  threshold?: number;
-  rootMargin?: string;
-  once?: boolean;
-}
+import { useEffect, useRef, useState } from "react";
 
 export function useScrollReveal<T extends HTMLElement = HTMLDivElement>(
-  options: ScrollRevealOptions = {}
+  threshold: number = 0.15
 ) {
   const ref = useRef<T>(null);
-  const { threshold = 0.15, rootMargin = "0px 0px -50px 0px", once = true } = options;
+  const [isVisible, setIsVisible] = useState(false);
 
   useEffect(() => {
     const el = ref.current;
     if (!el) return;
 
-    el.classList.add("reveal-hidden");
-
     const observer = new IntersectionObserver(
       ([entry]) => {
         if (entry.isIntersecting) {
-          el.classList.add("reveal-visible");
-          if (once) observer.unobserve(el);
-        } else if (!once) {
-          el.classList.remove("reveal-visible");
+          setIsVisible(true);
+          observer.unobserve(el);
         }
       },
-      { threshold, rootMargin }
+      { threshold, rootMargin: "0px 0px -50px 0px" }
     );
 
     observer.observe(el);
     return () => observer.disconnect();
-  }, [threshold, rootMargin, once]);
+  }, [threshold]);
 
-  return ref;
+  return { ref, isVisible };
 }

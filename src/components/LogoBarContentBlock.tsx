@@ -1,5 +1,5 @@
 import { LogoBarBlockConfig } from "@/config/siteConfig";
-import { useScrollReveal } from "@/hooks/useScrollReveal";
+import RevealBlock from "./core/RevealBlock";
 import { useParallax } from "@/hooks/useParallax";
 
 interface LogoBarContentBlockProps {
@@ -7,8 +7,6 @@ interface LogoBarContentBlockProps {
 }
 
 const LogoBarContentBlock = ({ data }: LogoBarContentBlockProps) => {
-  const containerRef = useScrollReveal<HTMLDivElement>();
-
   /* Convert vertical parallax into horizontal scroll-reactive shift */
   const { ref: row1Ref, offset: row1Offset } = useParallax(0.15);
   const { ref: row2Ref, offset: row2Offset } = useParallax(-0.1);
@@ -18,9 +16,9 @@ const LogoBarContentBlock = ({ data }: LogoBarContentBlockProps) => {
 
   return (
     <section id={data.id} className="py-20 md:py-28">
-      <div ref={containerRef} className="container mx-auto px-6">
+      <div className="container mx-auto px-6">
         {/* Header */}
-        <div className="text-center mb-14 max-w-2xl mx-auto">
+        <RevealBlock className="text-center mb-14 max-w-2xl mx-auto">
           <h2 className="text-3xl md:text-4xl font-bold leading-tight mb-4">
             {data.title}{" "}
             {data.highlight && (
@@ -32,9 +30,9 @@ const LogoBarContentBlock = ({ data }: LogoBarContentBlockProps) => {
               {data.description}
             </p>
           )}
-        </div>
+        </RevealBlock>
 
-        {/* Marquee row 1 — scroll-reactive via parallax X */}
+        {/* Marquee row 1 */}
         <div className="relative overflow-hidden [mask-image:linear-gradient(to_right,transparent,black_10%,black_90%,transparent)]">
           <div
             ref={row1Ref}
@@ -53,7 +51,7 @@ const LogoBarContentBlock = ({ data }: LogoBarContentBlockProps) => {
           </div>
         </div>
 
-        {/* Marquee row 2 — counter-direction for visual depth */}
+        {/* Marquee row 2 — counter-direction */}
         <div className="relative overflow-hidden mt-6 [mask-image:linear-gradient(to_right,transparent,black_10%,black_90%,transparent)]">
           <div
             ref={row2Ref}
