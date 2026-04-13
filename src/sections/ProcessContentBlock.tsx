@@ -1,5 +1,6 @@
 import { ProcessBlockConfig } from "@/config/siteConfig";
 import RevealBlock from "@/components/core/RevealBlock";
+import SplitText from "@/components/core/SplitText";
 import ParallaxLayer from "@/components/core/ParallaxLayer";
 import {
   Zap, Layers, Shield, Sparkles, Rocket, Palette,
@@ -33,9 +34,31 @@ const ProcessContentBlock = ({ data }: ProcessContentBlockProps) => {
         {/* Header */}
         <RevealBlock className="text-center mb-16 max-w-2xl mx-auto">
           <h2 className="text-3xl md:text-4xl font-bold leading-tight mb-4">
-            {data.title}{" "}
+            <SplitText
+              text={data.title}
+              tag="span"
+              splitType="words"
+              delay={40}
+              duration={1}
+              ease="power3.out"
+              from={{ opacity: 0, y: 30 }}
+              to={{ opacity: 1, y: 0 }}
+              className="inline"
+              textAlign="center"
+            />{" "}
             {data.highlight && (
-              <span className="text-primary">{data.highlight}</span>
+              <SplitText
+                text={data.highlight}
+                tag="span"
+                splitType="chars"
+                delay={35}
+                duration={0.9}
+                ease="power3.out"
+                from={{ opacity: 0, y: 25 }}
+                to={{ opacity: 1, y: 0 }}
+                className="text-primary inline"
+                textAlign="center"
+              />
             )}
           </h2>
           {data.description && (

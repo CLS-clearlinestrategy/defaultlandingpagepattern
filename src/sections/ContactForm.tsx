@@ -1,6 +1,7 @@
 import { useReducer } from "react";
 import { siteConfig } from "@/config/siteConfig";
 import RevealBlock from "@/components/core/RevealBlock";
+import SplitText from "@/components/core/SplitText";
 import { toast } from "sonner";
 import { Send } from "lucide-react";
 
@@ -85,7 +86,18 @@ const ContactForm = () => {
     <section id="contact" className="py-20 md:py-28">
       <RevealBlock className="container mx-auto px-6 max-w-xl">
         <div className="text-center mb-12">
-          <h2 className="text-3xl md:text-4xl font-bold mb-3">{contact.title}</h2>
+          <SplitText
+            text={contact.title}
+            tag="h2"
+            splitType="words"
+            delay={40}
+            duration={1}
+            ease="power3.out"
+            from={{ opacity: 0, y: 30 }}
+            to={{ opacity: 1, y: 0 }}
+            className="text-3xl md:text-4xl font-bold mb-3"
+            textAlign="center"
+          />
           <p className="text-muted-foreground">{contact.subtitle}</p>
         </div>
 

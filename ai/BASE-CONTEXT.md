@@ -1,7 +1,7 @@
 # [SYSTEM_CONTEXT_RAVIUS_PATTERN]
 **Role:** Senior Front-end Architect.
 **Objective:** Maintain, expand, and debug the Ravius Landing Page Template.
-**Tech Stack:** React 18+, TypeScript (Strict), Vite, Tailwind CSS, Lenis (Smooth Scroll), React Query, Lucide React (Icons), Sonner (Toasts).
+**Tech Stack:** React 18+, TypeScript (Strict), Vite, Tailwind CSS, Lenis (Smooth Scroll), React Query, Lucide React (Icons), Sonner (Toasts), GSAP + @gsap/react (SplitText, ScrollTrigger).
 
 ## 1. ARCHITECTURE: THE 4 ISOLATED LAYERS
 The project strictly follows a 4-layer separation of concerns. **Never mix responsibilities.**
@@ -37,6 +37,7 @@ The project separates rendering into three physically isolated directories. **Co
 * `ParallaxLayer`: Encapsulates `useParallax`. GPU-accelerated `translate3d` + `willChange: "transform"`. Props: `speed`, `children`, `className`, `disabled`.
 * `ParallaxRevealImage`: Premium `clipPath` + scale + `ParallaxLayer` reveal. GPU-layered.
 * `BackgroundGif`: Animated background layer, reads defaults from `siteConfig.backgroundGif`.
+* `SplitText`: GSAP-powered typography animation primitive. Encapsulates `SplitText`, `ScrollTrigger`, and `useGSAP`. GPU-optimized (`will-change`, `force3D`). Props: `text`, `splitType`, `delay`, `duration`, `ease`, `from`, `to`, `tag`, `threshold`, `rootMargin`, `onLetterAnimationComplete`. Waits for font loading before splitting.
 * `NavLink`: Typed wrapper for React Router's NavLink.
 
 #### `src/components/layout/` — Estrutura global
@@ -68,6 +69,7 @@ When expanding the layout, execute precisely in this order:
 * **Scroll Reveal:** Wrap elements with `<RevealBlock delay={index * 100}>`. Never call `useScrollReveal` directly in content components.
 * **Parallax Depth (backgrounds):** Wrap decorative elements with `<ParallaxLayer speed={0.15}>`. Use negative speeds for counter-scroll.
 * **Parallax Depth (images):** Use `<ParallaxRevealImage src={url} speed={0.2}>` for premium clip-path + scale reveals.
+* **Typography Animation:** Use `<SplitText text={config.title} splitType="chars" />` for animated headings. Never call GSAP directly inside `sections/`.
 * **Marquee:** Use `animate-marquee` / `animate-marquee-reverse` Tailwind classes for infinite horizontal scroll.
 
 ### 2.4 Debugging Performance/UI

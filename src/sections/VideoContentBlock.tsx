@@ -1,5 +1,6 @@
 import { VideoBlockConfig } from "@/config/siteConfig";
 import RevealBlock from "@/components/core/RevealBlock";
+import SplitText from "@/components/core/SplitText";
 import { useParallax } from "@/hooks/useParallax";
 
 interface VideoContentBlockProps {
@@ -48,9 +49,31 @@ const VideoContentBlock = ({ data }: VideoContentBlockProps) => {
         {/* Text */}
         <div className="flex-1 space-y-6">
           <h2 className="text-3xl md:text-4xl font-bold leading-tight">
-            {data.title}{" "}
+            <SplitText
+              text={data.title}
+              tag="span"
+              splitType="words"
+              delay={40}
+              duration={1}
+              ease="power3.out"
+              from={{ opacity: 0, y: 30 }}
+              to={{ opacity: 1, y: 0 }}
+              className="inline"
+              textAlign="left"
+            />{" "}
             {data.highlight && (
-              <span className="text-primary">{data.highlight}</span>
+              <SplitText
+                text={data.highlight}
+                tag="span"
+                splitType="chars"
+                delay={35}
+                duration={0.9}
+                ease="power3.out"
+                from={{ opacity: 0, y: 25 }}
+                to={{ opacity: 1, y: 0 }}
+                className="text-primary inline"
+                textAlign="left"
+              />
             )}
           </h2>
 
